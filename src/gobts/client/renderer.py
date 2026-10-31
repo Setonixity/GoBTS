@@ -5,7 +5,10 @@ from gobts.core import *
 
 class BoardRenderer:
 
-    def draw_ascii(self, board: Board):
+    def __init__(self, board: Board):
+        self.board = board
+
+    def draw_ascii(self):
         CORNERS = ["┌", "┐", "└", "┘"] # TL, TR, BL, BR
         EDGES = ["┬", "┴", "├", "┤"] # T, B, L, R
         CENTER       = "┼"
@@ -14,6 +17,7 @@ class BoardRenderer:
         BLACK = "●"
         WHITE = "○"
 
+        board = self.board
         stone_map: dict[Point, Color] = dict(board.stones)
         star_map: list[Point] = star_points(board.size)
         # print(stone_map)
