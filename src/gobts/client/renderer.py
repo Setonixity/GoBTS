@@ -1,0 +1,87 @@
+from __future__ import annotations
+from typing import Iterator
+
+from gobts.core import *
+
+class BoardRenderer:
+
+    def draw_ascii(self, board: Board):
+        CORNERS = ["┌", "┐", "└", "┘"] # TL, TR, BL, BR
+        EDGES = ["┬", "┴", "├", "┤"] # T, B, L, R
+        CENTER       = "┼"
+        STAR_POINT   = "⊕"
+        HORIZONTAL   = "─"
+        BLACK = "●"
+        WHITE = "○"
+
+        stone_map: dict[Point, Color] = dict(board.stones)
+        star_map: list[Point] = star_points(board.size)
+        # print(stone_map)
+
+        for row in range(board.size):
+            row_chars = []
+            for col in range(board.size):
+                point = Point(col, row)
+                char = ""
+                if point in stone_map:
+                    char = BLACK if stone_map[point] == Color.BLACK else WHITE
+                elif point in star_map:
+                    char = STAR_POINT
+
+                elif point == Point(0, 0):
+                    char = CORNERS[0]
+                elif point == Point(board.size - 1, 0):
+                    char = CORNERS[1]
+                elif point == Point(0, board.size - 1):
+                    char = CORNERS[2]
+                elif point == Point(board.size - 1, board.size -1):
+                    char = CORNERS[3]
+
+                elif row == 0:
+                    char = EDGES[0]
+                elif row == board.size - 1:
+                    char = EDGES[1]
+                elif col == 0:
+                    char = EDGES[2]
+                elif col == board.size - 1:
+                    char = EDGES[3]                    
+
+                else:
+                    char = CENTER
+                row_chars.append(char)
+            print(HORIZONTAL.join(row_chars))
+
+def star_points(size: int = 19) -> list[Point]:
+    """
+    Note: My idea is:
+    corners and size only for > 7
+    shift corners down to 3-3 from < size 12
+    sides only from odd >= size 15
+    tengen only for odd sizes except 1
+
+    Might change later, the one in 'Sabaki' has sides at like 13x13 but in my go experience, that's not common and it doesn't look that good
+    """
+    _star_points = []
+    
+    if size > 7:
+        from_corner = 2 if size < 12 else 3
+        far_corner = size - from_corner - 1
+
+        #side
+        if size % 2 == 1 and size >= 15:
+            mid = size // 2
+            for point in [Point(mid, from_corner), Point(from_corner, mid), Point(mid, far_corner), Point(far_corner, mid)]:
+                _star_points.append(point)
+
+        #corner
+        for point in [Point(from_corner, from_corner), Point(from_corner, far_corner), Point(far_corner, from_corner), Point(far_corner, far_corner)]:
+            _star_points.append(point)
+
+    if size % 2 == 1 and size > 1: # tengen
+        _star_points.append(Point(size // 2, size // 2))
+    return _star_points
+
+board = Board(19)
+board.set(Point(0,0), Color.BLACK)
+board.set(Point(2,2), Color.WHITE)
+BoardRenderer().draw_ascii(board)
