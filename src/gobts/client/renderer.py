@@ -81,7 +81,7 @@ def star_points(size: int = 19) -> list[Point]:
         _star_points.append(Point(size // 2, size // 2))
     return _star_points
 
-board = Board(19)
-board.set(Point(0,0), Color.BLACK)
-board.set(Point(2,2), Color.WHITE)
-BoardRenderer().draw_ascii(board)
+# board = Board(19)
+# board.set(Point(0,0), Color.BLACK)
+# board.set(Point(2,2), Color.WHITE)
+# BoardRenderer().draw_ascii(board)

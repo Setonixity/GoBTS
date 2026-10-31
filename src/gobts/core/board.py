@@ -15,6 +15,10 @@ class Point: # starts from (0, 0) which is 1-1 in go
     x: int 
     y: int 
 
+    def __iter__(self):
+        yield self.x
+        yield self.y
+
 class Board():
 
     def __init__(self, size: int = 19):
@@ -38,7 +42,6 @@ class Board():
                 if color:
                     yield Point(x, y), color
 
-    @property
     def neighbors(self, point: Point) -> Iterator[Point]:
         x, y = point
         for neighbor in [Point(x-1, y), Point(x+1, y), Point(x, y-1), Point(x, y+1)]:
