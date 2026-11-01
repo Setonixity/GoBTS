@@ -119,16 +119,15 @@ class BoardRenderer:
 
         _supersampled = 8
         fill_color = (0,0,0)
-        sprite = self._sprite_cache.get(radius)
+        sprite = self._star_cache.get(radius)
         if sprite == None:
             size = radius*2 + 1
             ss_size = size*_supersampled
             big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
             center = (ss_size/2, ss_size/2)
-            edge = max(1, radius*0.05) * _supersampled
-            pygame.draw.circle(big, fill_color, center, radius*_supersampled - edge)
+            pygame.draw.circle(big, fill_color, center, radius*_supersampled)
             sprite = pygame.transform.smoothscale(big, (size, size))
-            self._sprite_cache[radius] = sprite
+            self._star_cache[radius] = sprite
         return sprite
 
 

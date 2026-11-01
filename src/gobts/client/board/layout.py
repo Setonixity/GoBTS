@@ -23,7 +23,7 @@ class BoardLayout:
             size = size,
             start_x = (width - gridpx_across) / 2,
             start_y = (height - gridpx_across) / 2,
-            line_width = 1,
+            line_width = max(1, round(min(width, height) / 800)),
             spacing = spacing
         )
 
