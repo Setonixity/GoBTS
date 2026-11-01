@@ -15,14 +15,14 @@ class BoardLayout:
     spacing: float
 
     @classmethod
-    def fit(cls, size, width, height) -> BoardLayout:
+    def fit(cls, size, width, height, top: float = 0) -> BoardLayout:
         cells_across = (size - 1) + (2 * EDGE_CELL)
         spacing = max(1.0, (min(width, height) / cells_across))
         gridpx_across = (size - 1) * spacing
         return cls(
             size = size,
             start_x = (width - gridpx_across) / 2,
-            start_y = (height - gridpx_across) / 2,
+            start_y = top + (height - gridpx_across) / 2,
             line_width = max(1, round(min(width, height) / 800)),
             spacing = spacing
         )

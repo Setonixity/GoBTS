@@ -13,19 +13,20 @@ class UIRenderer:
         self.menubar = menubar
         self.open_index = menubar.open_index
         self.menus = menubar.menus
+        self.height = 22
 
     def draw(self, surface: pygame.Surface):
         font = self._get_font()
-        pygame.draw.rect(surface, (0, 0, 0), (0, 0, surface.get_width(), self.menubar.height))
+        mouse = pygame.mouse.get_pos() if pygame.mouse.get_focused() else (-1, -1)
+        pygame.draw.rect(surface, (0, 0, 0), (0, 0, surface.get_width(), self.height))
 
-        title_rects = []
         x = 0
-        for _menu in self.menus:
-            width = font.size(_menu.label)[0]
-            title_rects.append(pygame.Rect(x, 0, width + 2*PAD_X, self.menubar.height))
-            x += width
+        for i, menu in enumerate(self.menubar.menus):
+            rect = pygame.Rect(x, 0, font.size(menu.label)[0] + 2*PAD_X, self.height)
+            x = rect.right
 
-        for menu, rect in zip(self.menubar.menus, title_rects):
+            if i == self.open_index or rect.collidepoint(mouse):
+                pygame.draw.rect(surface, (100, 100, 100), rect)
             self._blit_text(surface, menu.label, (255, 255, 255), font, midleft=(rect.x+PAD_X, rect.centery - 2))
 
 

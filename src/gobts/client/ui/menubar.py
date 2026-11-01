@@ -18,4 +18,3 @@ class MenuBar:
     def __init__(self, menus: list[Menu]):
         self.menus = menus
         self.open_index: int|None = None
-        self.height = 22

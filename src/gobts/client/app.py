@@ -8,7 +8,7 @@ from gobts.core import *
 import pygame
 
 WINDOW_TITLE = "GO TO FUCKING SLEEP"
-WINDOW_SIZE = (800, 800)
+WINDOW_SIZE = (800, 822)
 FPS = 60
 
 REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPOSED}
@@ -27,8 +27,8 @@ class ClientApp:
         pygame.display.set_caption(WINDOW_TITLE)
 
         layout_size = None
-        self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, *WINDOW_SIZE))
         self.ui_renderer = UIRenderer(MenuBar([Menu("TEST", [MenuItem("TEST", print("TEST"))])]))
+        self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, WINDOW_SIZE[0], WINDOW_SIZE[1] - self.ui_renderer.height, top=self.ui_renderer.height))
 
         running = True
         needs_redraw = True
@@ -51,7 +51,7 @@ class ClientApp:
                 screen = pygame.display.get_surface()
                 if screen.get_size() != layout_size:
                     layout_size = screen.get_size()
-                    self.b_renderer.layout = BoardLayout.fit(self.size, * layout_size)
+                    self.b_renderer.layout = BoardLayout.fit(self.size, layout_size[0], layout_size[1] - self.ui_renderer.height, top=self.ui_renderer.height)
                 ghost_preview = None
                 if pygame.mouse.get_focused():
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
