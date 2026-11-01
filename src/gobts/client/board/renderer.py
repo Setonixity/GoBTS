@@ -13,6 +13,9 @@ class BoardRenderer:
         self._sprite_cache: dict[tuple[Color, float], pygame.Surface] = {}
         self._cached_radius: float|None = None
 
+        self._star_cache: dict[float, pygame.Surface] = {}
+        self._cached_star_radius: float|None = None 
+
     def draw(self, surface: pygame.Surface, ghost_preview: tuple[Point, Color]|None = None):
         layout = self.layout
         size = layout.size
@@ -20,10 +23,16 @@ class BoardRenderer:
         surface.fill((222, 184, 106))
         line_width = layout.line_width
 
+        # grid
         for i in range(size):
             pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(i, 0)), layout.to_pixel(Point(i, size-1)), line_width)
             pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(0, i)), layout.to_pixel(Point(size-1, i)), line_width)
-    
+        # star points
+        star_radius = max(2, round(layout.spacing * 0.1))
+        star_sprite = self._star_sprite(star_radius)
+        for point in star_points(layout.size):
+            x, y = layout.to_pixel(point)
+            surface.blit(star_sprite, (x - star_radius, y - star_radius))
 
         radius = layout.stone_radius()
         for point, color in self.board.stones:
@@ -103,6 +112,24 @@ class BoardRenderer:
             self._sprite_cache[(color, radius)] = sprite
         return sprite
 
+    def _star_sprite(self, radius: float) -> pygame.Surface:
+        if radius != self._cached_star_radius:
+            self._star_cache.clear()
+            self._cached_star_radius = radius
+
+        _supersampled = 8
+        fill_color = (0,0,0)
+        sprite = self._sprite_cache.get(radius)
+        if sprite == None:
+            size = radius*2 + 1
+            ss_size = size*_supersampled
+            big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+            center = (ss_size/2, ss_size/2)
+            edge = max(1, radius*0.05) * _supersampled
+            pygame.draw.circle(big, fill_color, center, radius*_supersampled - edge)
+            sprite = pygame.transform.smoothscale(big, (size, size))
+            self._sprite_cache[radius] = sprite
+        return sprite
 
 
 def star_points(size: int = 19) -> list[Point]:

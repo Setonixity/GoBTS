@@ -61,7 +61,7 @@ class ClientApp:
         pygame.quit()
 
     def on_click(self, point: Point|None):
-        if point == None:
+        if point == None and not self.board.is_empty(point):
             return
         play(self.board, point, self.color_to_play)
         self.color_to_play = self.color_to_play.switch()
