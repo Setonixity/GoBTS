@@ -1,7 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import math
 
-from gobts.core import *
+from gobts.core.board import *
 
 EDGE_CELL = 1.3
 
@@ -31,6 +32,13 @@ class BoardLayout:
             round(self.start_x + (point.x*self.spacing)),
             round(self.start_y + (point.y*self.spacing))
         )
+
+    def to_point(self, px: float, py: float) -> Point|None:
+        x = math.floor((px - self.start_x) / self.spacing + 0.5)
+        y = math.floor((py - self.start_y) / self.spacing + 0.5)
+        if 0 <= x < self.size and 0 <= y < self.size:
+            return Point(x, y)
+        return None
 
     def stone_radius(self) -> float:
         return int(self.spacing * (0.5 - 0.04))

@@ -40,6 +40,10 @@ class ClientApp:
                     running = False
                 elif event.type in REDRAW_EVENTS:
                     needs_redraw = True
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    self.on_click(self.renderer.layout.to_point(*event.pos))
+                    needs_redraw = True
+
 
             if needs_redraw:
                 screen = pygame.display.get_surface()
@@ -51,6 +55,12 @@ class ClientApp:
                 needs_redraw = False
             
         pygame.quit()
+
+    def on_click(self, point: Point|None):
+        if point == None:
+            return
+        play(self.board, point, self.color_to_play)
+        self.color_to_play = self.color_to_play.switch()
     
 
 ClientApp().run()

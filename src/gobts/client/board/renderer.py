@@ -3,7 +3,7 @@ from __future__ import annotations
 import pygame
 
 from gobts.client.board.layout import BoardLayout
-from gobts.core import *
+from gobts.core.board import *
 
 class BoardRenderer:
 

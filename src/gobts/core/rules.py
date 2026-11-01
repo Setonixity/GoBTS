@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from gobts.client.board.renderer import BoardRenderer
-from gobts.core import *
+from gobts.core.board import *
 
 def group_and_liberties(board: Board, point: Point) -> tuple[set[Point], set[Point]]:
     color = board.get(point)
@@ -26,7 +25,7 @@ def play(board:Board, point: Point, color: Color):
     for neighbor in board.neighbors(point):
         if board.get(neighbor) == color.switch():
             group, liberties = group_and_liberties(board, neighbor)
-            print(group, liberties)
+            # print(group, liberties)
             if not liberties:
                 for captured in group:
                     board.set(captured, None) 
