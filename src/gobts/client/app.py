@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from gobts.client.board import *
+from gobts.client.ui.menubar import Menu, MenuBar, MenuItem
+from gobts.client.ui.renderer import UIRenderer
 from gobts.core import *
 
 import pygame
@@ -25,7 +27,8 @@ class ClientApp:
         pygame.display.set_caption(WINDOW_TITLE)
 
         layout_size = None
-        self.renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, *WINDOW_SIZE))
+        self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, *WINDOW_SIZE))
+        self.ui_renderer = UIRenderer(MenuBar([Menu("TEST", [MenuItem("TEST", print("TEST"))])]))
 
         running = True
         needs_redraw = True
@@ -41,20 +44,21 @@ class ClientApp:
                 elif event.type in REDRAW_EVENTS or event.type == pygame.MOUSEMOTION:
                     needs_redraw = True
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.on_click(self.renderer.layout.to_point(*event.pos))
+                    self.on_click(self.b_renderer.layout.to_point(*event.pos))
                     needs_redraw = True
 
             if needs_redraw:
                 screen = pygame.display.get_surface()
                 if screen.get_size() != layout_size:
                     layout_size = screen.get_size()
-                    self.renderer.layout = BoardLayout.fit(self.size, * layout_size)
+                    self.b_renderer.layout = BoardLayout.fit(self.size, * layout_size)
                 ghost_preview = None
                 if pygame.mouse.get_focused():
-                    point = self.renderer.layout.to_point(*pygame.mouse.get_pos())
+                    point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
                     if point != None:
                         ghost_preview = (point, self.color_to_play)
-                self.renderer.draw(screen, ghost_preview)
+                self.b_renderer.draw(screen, ghost_preview)
+                self.ui_renderer.draw(screen)
                 pygame.display.flip()
                 needs_redraw = False
             
