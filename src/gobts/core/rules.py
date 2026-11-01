@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from gobts.client.renderer import BoardRenderer
+from gobts.client.board.renderer import BoardRenderer
 from gobts.core import *
 
 def group_and_liberties(board: Board, point: Point) -> tuple[set[Point], set[Point]]:

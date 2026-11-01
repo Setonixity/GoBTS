@@ -1,12 +1,26 @@
 from __future__ import annotations
-from typing import Iterator
 
+import pygame
+
+from gobts.client.board.layout import BoardLayout
 from gobts.core import *
 
 class BoardRenderer:
 
-    def __init__(self, board: Board):
+    def __init__(self, board: Board, layout: BoardLayout):
         self.board = board
+        self.layout = layout
+
+    def draw(self, surface: pygame.Surface):
+        layout = self.layout
+        size = layout.size
+
+        surface.fill((222, 184, 106))
+        line_width = layout.line_width
+
+        for i in range(size):
+            pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(i, 0)), layout.to_pixel(Point(i, size-1)), line_width)
+            pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(0, i)), layout.to_pixel(Point(size-1, i)), line_width)
 
     def draw_ascii(self):
         CORNERS = ["┌", "┐", "└", "┘"] # TL, TR, BL, BR

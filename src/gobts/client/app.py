@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from gobts.client.renderer import BoardRenderer
+from gobts.client.board import *
 from gobts.core import *
 
 import pygame
@@ -13,10 +13,7 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
-        self.renderer = BoardRenderer(self.board)
         self.color_to_play = Color.BLACK
-
-        # self.renderer.draw_ascii()
 
     def run(self):
         pygame.init()
@@ -30,6 +27,10 @@ class ClientApp:
                 if event.type == pygame.QUIT:
                     running = False
 
+            width, height = screen.get_size()
+            self.layout = BoardLayout.fit(self.size, width, height)
+            self.renderer = BoardRenderer(self.board, self.layout)
+            self.renderer.draw(screen)
             pygame.display.flip()
             clock.tick(FPS)
         pygame.quit()
