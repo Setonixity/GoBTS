@@ -31,9 +31,12 @@ class Board():
     def set(self, point: Point, color: Color|None):
         self._grid[point.y][point.x] = color
 
-    def contains(self, point: Point):
+    def contains(self, point: Point) -> bool:
         x, y = point
         return 0 <= x < self.size and 0 <= y < self.size
+
+    def is_empty(self, point: Point) -> bool:
+        return self.get(point) == None
 
     @property
     def stones(self) -> Iterator[Point, Color]:

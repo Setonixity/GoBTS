@@ -41,4 +41,4 @@ class BoardLayout:
         return None
 
     def stone_radius(self) -> float:
-        return int(self.spacing * (0.5 - 0.04))
+        return int(self.spacing * (0.5 - 0.03))

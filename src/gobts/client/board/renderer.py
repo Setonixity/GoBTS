@@ -13,7 +13,7 @@ class BoardRenderer:
         self._sprite_cache: dict[tuple[Color, float], pygame.Surface] = {}
         self._cached_radius: float|None = None
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface, ghost_preview: tuple[Point, Color]|None = None):
         layout = self.layout
         size = layout.size
 
@@ -23,11 +23,17 @@ class BoardRenderer:
         for i in range(size):
             pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(i, 0)), layout.to_pixel(Point(i, size-1)), line_width)
             pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(0, i)), layout.to_pixel(Point(size-1, i)), line_width)
+    
 
         radius = layout.stone_radius()
         for point, color in self.board.stones:
             x, y = layout.to_pixel(point)
             surface.blit(self._stone_sprite(color, radius), (x - radius, y - radius))
+        if ghost_preview != None and self.board.is_empty(ghost_preview[0]):
+            x, y = layout.to_pixel(ghost_preview[0])
+            sprite = self._stone_sprite(ghost_preview[1], radius).copy()
+            sprite.set_alpha(100)
+            surface.blit(sprite, (x - radius, y - radius))
 
     def draw_ascii(self):
         CORNERS = ["┌", "┐", "└", "┘"] # TL, TR, BL, BR

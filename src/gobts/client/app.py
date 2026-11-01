@@ -38,19 +38,23 @@ class ClientApp:
             for event in events:
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type in REDRAW_EVENTS:
+                elif event.type in REDRAW_EVENTS or event.type == pygame.MOUSEMOTION:
                     needs_redraw = True
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     self.on_click(self.renderer.layout.to_point(*event.pos))
                     needs_redraw = True
-
 
             if needs_redraw:
                 screen = pygame.display.get_surface()
                 if screen.get_size() != layout_size:
                     layout_size = screen.get_size()
                     self.renderer.layout = BoardLayout.fit(self.size, * layout_size)
-                self.renderer.draw(screen)
+                ghost_preview = None
+                if pygame.mouse.get_focused():
+                    point = self.renderer.layout.to_point(*pygame.mouse.get_pos())
+                    if point != None:
+                        ghost_preview = (point, self.color_to_play)
+                self.renderer.draw(screen, ghost_preview)
                 pygame.display.flip()
                 needs_redraw = False
             
