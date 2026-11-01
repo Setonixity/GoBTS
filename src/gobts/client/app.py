@@ -13,6 +13,7 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
+        self.board.set(Point(0,0), Color.BLACK)
         self.color_to_play = Color.BLACK
 
     def run(self):

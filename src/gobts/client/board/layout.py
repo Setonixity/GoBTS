@@ -31,3 +31,6 @@ class BoardLayout:
             round(self.start_x + (point.x*self.spacing)),
             round(self.start_y + (point.y*self.spacing))
         )
+
+    def stone_radius(self) -> float:
+        return self.spacing * (0.5 - 0.05)

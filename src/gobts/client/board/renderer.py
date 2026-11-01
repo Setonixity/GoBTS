@@ -10,6 +10,7 @@ class BoardRenderer:
     def __init__(self, board: Board, layout: BoardLayout):
         self.board = board
         self.layout = layout
+        self._sprite_cache: dict[tuple[Color], pygame.Surface] = {}
 
     def draw(self, surface: pygame.Surface):
         layout = self.layout
@@ -21,6 +22,12 @@ class BoardRenderer:
         for i in range(size):
             pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(i, 0)), layout.to_pixel(Point(i, size-1)), line_width)
             pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(0, i)), layout.to_pixel(Point(size-1, i)), line_width)
+
+        for point, color in self.board.stones:
+            x, y = layout.to_pixel(point)
+            sprite = self._stone_sprite(color, layout.stone_radius())
+            half = sprite.get_width() // 2
+            surface.blit(sprite, (x - half, y - half))
 
     def draw_ascii(self):
         CORNERS = ["┌", "┐", "└", "┘"] # TL, TR, BL, BR
@@ -68,6 +75,24 @@ class BoardRenderer:
                     char = CENTER
                 row_chars.append(char)
             print(HORIZONTAL.join(row_chars))
+
+    def _stone_sprite(self, color: Color, radius: int) -> pygame.Surface:
+        _supersampled = 8
+        edge_color = (0,0,0)
+        fill_color = (0,0,0) if color == Color.BLACK else (255, 255, 255)
+        sprite = self._sprite_cache.get(color)
+        if sprite == None:
+            size = radius*2
+            ss_size = size*_supersampled
+            big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+            center = (ss_size/2, ss_size/2)
+            pygame.draw.circle(big, edge_color, center, radius*_supersampled)
+            pygame.draw.circle(big, fill_color, center, radius*_supersampled - 1)
+            sprite = pygame.transform.smoothscale(big, (size, size))
+            self._sprite_cache[color] = sprite
+        return sprite
+
+
 
 def star_points(size: int = 19) -> list[Point]:
     """
