@@ -9,31 +9,47 @@ WINDOW_TITLE = "GO TO FUCKING SLEEP"
 WINDOW_SIZE = (800, 800)
 FPS = 60
 
+REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPOSED}
+
 class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
-        self.board.set(Point(0,0), Color.BLACK)
+        self.board.set(Point(3, 3), Color.BLACK)
+        self.board.set(Point(3, 4), Color.WHITE)
         self.color_to_play = Color.BLACK
 
     def run(self):
         pygame.init()
-        screen = pygame.display.set_mode(WINDOW_SIZE, pygame.RESIZABLE)
+        pygame.display.set_mode(WINDOW_SIZE, pygame.RESIZABLE)
         pygame.display.set_caption(WINDOW_TITLE)
-        clock = pygame.time.Clock()
+
+        layout_size = None
+        self.renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, *WINDOW_SIZE))
 
         running = True
+        needs_redraw = True
         while running:
-            for event in pygame.event.get():
+            if not needs_redraw:
+                events = [pygame.event.wait(), *pygame.event.get()]
+            else:
+                events = pygame.event.get()
+
+            for event in events:
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type in REDRAW_EVENTS:
+                    needs_redraw = True
 
-            width, height = screen.get_size()
-            self.layout = BoardLayout.fit(self.size, width, height)
-            self.renderer = BoardRenderer(self.board, self.layout)
-            self.renderer.draw(screen)
-            pygame.display.flip()
-            clock.tick(FPS)
+            if needs_redraw:
+                screen = pygame.display.get_surface()
+                if screen.get_size() != layout_size:
+                    layout_size = screen.get_size()
+                    self.renderer.layout = BoardLayout.fit(self.size, * layout_size)
+                self.renderer.draw(screen)
+                pygame.display.flip()
+                needs_redraw = False
+            
         pygame.quit()
     
 

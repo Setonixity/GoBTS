@@ -15,7 +15,7 @@ def group_and_liberties(board: Board, point: Point) -> tuple[set[Point], set[Poi
         group.add(current)
         for neighbor in board.neighbors(current):
             if board.get(neighbor) == color:
-                to_check.add(neighbor)
+                to_check.append(neighbor)
             elif board.get(neighbor) == None:
                 liberties.add(neighbor)
     return (group, liberties)

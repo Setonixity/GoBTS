@@ -16,7 +16,7 @@ class BoardLayout:
     @classmethod
     def fit(cls, size, width, height) -> BoardLayout:
         cells_across = (size - 1) + (2 * EDGE_CELL)
-        spacing = min(width, height) / cells_across
+        spacing = max(1.0, (min(width, height) / cells_across))
         gridpx_across = (size - 1) * spacing
         return cls(
             size = size,
@@ -33,4 +33,4 @@ class BoardLayout:
         )
 
     def stone_radius(self) -> float:
-        return self.spacing * (0.5 - 0.05)
+        return int(self.spacing * (0.5 - 0.04))

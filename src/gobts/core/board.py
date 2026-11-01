@@ -33,7 +33,7 @@ class Board():
 
     def contains(self, point: Point):
         x, y = point
-        return 0 <= x <= self.size and 0 <= y <= self.size
+        return 0 <= x < self.size and 0 <= y < self.size
 
     @property
     def stones(self) -> Iterator[Point, Color]:
