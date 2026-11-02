@@ -4,37 +4,25 @@ import pygame
 
 from gobts.client.ui.menubar import MenuBar
 
-PAD_X = 8
-
 class UIRenderer:
 
-    def __init__(self, menubar: MenuBar):
-        self.font: pygame.font.Font|None = None
+    def __init__(self, menubar: MenuBar, font: pygame.font.Font):
         self.menubar = menubar
-        self.open_index = menubar.open_index
-        self.menus = menubar.menus
-        self.height = 22
+        self.font = font
 
     def draw(self, surface: pygame.Surface):
-        font = self._get_font()
+        menubar = self.menubar
+        layout = menubar.layout
         mouse = pygame.mouse.get_pos() if pygame.mouse.get_focused() else (-1, -1)
-        pygame.draw.rect(surface, (0, 0, 0), (0, 0, surface.get_width(), self.height))
+        hover = layout.title_at(mouse)
 
-        x = 0
-        for i, menu in enumerate(self.menubar.menus):
-            rect = pygame.Rect(x, 0, font.size(menu.label)[0] + 2*PAD_X, self.height)
-            x = rect.right
+        pygame.draw.rect(surface, (0, 0, 0), (0, 0, surface.get_width(), layout.height))
 
-            if i == self.open_index or rect.collidepoint(mouse):
+        for i, (menu, rect) in enumerate(zip(menubar.menus, layout.title_rects)):
+            if i == menubar.open_index or i == hover:
                 pygame.draw.rect(surface, (100, 100, 100), rect)
-            self._blit_text(surface, menu.label, (255, 255, 255), font, midleft=(rect.x+PAD_X, rect.centery - 2))
+            self._blit_text(surface, menu.label, (255, 255, 255), center=(rect.centerx, rect.centery - 2))
 
-
-    def _get_font(self) -> pygame.font.Font:
-        if self.font == None:
-            self.font = pygame.font.SysFont("ubuntu,segoeui,dejavusans,arial", 13)
-        return self.font
-
-    def _blit_text(self, surface: pygame.Surface, text, color: pygame.Color, font: pygame.font.Font, **position):
-        image = font.render(text, True, color)
+    def _blit_text(self, surface: pygame.Surface, text, color: pygame.Color, **position):
+        image = self.font.render(text, True, color)
         surface.blit(image, image.get_rect(**position))

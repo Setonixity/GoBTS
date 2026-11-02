@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from gobts.client.board import *
-from gobts.client.ui.menubar import Menu, MenuBar, MenuItem
-from gobts.client.ui.renderer import UIRenderer
+from gobts.client.ui import *
 from gobts.core import *
 
 import pygame
@@ -27,8 +26,12 @@ class ClientApp:
         pygame.display.set_caption(WINDOW_TITLE)
 
         layout_size = None
-        self.ui_renderer = UIRenderer(MenuBar([Menu("TEST", [MenuItem("TEST", print("TEST"))])]))
-        self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, WINDOW_SIZE[0], WINDOW_SIZE[1] - self.ui_renderer.height, top=self.ui_renderer.height))
+        font = pygame.font.SysFont("ubuntu,segoeui,dejavusans,arial", 13)
+        self.menubar = MenuBar([Menu("TEST", [MenuItem("TEST", print("TEST"))])], font)
+        self.ui_renderer = UIRenderer(self.menubar, font)
+        bar_h = self.menubar.layout.height
+
+        self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, WINDOW_SIZE[0], WINDOW_SIZE[1] - bar_h, top=bar_h))
 
         running = True
         needs_redraw = True
@@ -51,7 +54,7 @@ class ClientApp:
                 screen = pygame.display.get_surface()
                 if screen.get_size() != layout_size:
                     layout_size = screen.get_size()
-                    self.b_renderer.layout = BoardLayout.fit(self.size, layout_size[0], layout_size[1] - self.ui_renderer.height, top=self.ui_renderer.height)
+                    self.b_renderer.layout = BoardLayout.fit(self.size, layout_size[0], layout_size[1] - bar_h, top=bar_h)
                 ghost_preview = None
                 if pygame.mouse.get_focused():
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())

@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Callable
+import pygame
 
-@dataclass
-class MenuItem:
-    label: str
-    action: Callable[[], None]
-
-@dataclass
-class Menu:
-    label: str
-    items: list[MenuItem]
+from gobts.client.ui.layout import MenuBarLayout
+from gobts.client.ui.menu import Menu
 
 class MenuBar:
 
-    def __init__(self, menus: list[Menu]):
+    def __init__(self, menus: list[Menu], font: pygame.font.Font):
         self.menus = menus
         self.open_index: int|None = None
+        self.layout = MenuBarLayout.fit(menus, font)
+
+    def handle_event(self, event: pygame.event.Event):
+        pass
+
+
