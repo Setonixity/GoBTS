@@ -38,6 +38,11 @@ class Board():
     def is_empty(self, point: Point) -> bool:
         return self.get(point) == None
 
+    def clear(self):
+        for y, row in enumerate(self._grid):
+            for x, _ in enumerate(row):
+                self.set(Point(x, y), None)
+
     @property
     def stones(self) -> Iterator[Point, Color]:
         for y, row in enumerate(self._grid):

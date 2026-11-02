@@ -16,8 +16,6 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
-        self.board.set(Point(3, 3), Color.BLACK)
-        self.board.set(Point(3, 4), Color.WHITE)
         self.color_to_play = Color.BLACK
 
     def run(self):
@@ -27,7 +25,15 @@ class ClientApp:
 
         layout_size = None
         font = pygame.font.SysFont("ubuntu,segoeui,dejavusans,arial", 13)
-        self.menubar = MenuBar([Menu("TEST", [MenuItem("TEST", lambda: print('TEST'))])], font)
+        self.menubar = MenuBar([
+            Menu("File", [
+                MenuItem("New Game", lambda: self.board.clear()),
+                MenuItem("Open Game", lambda: print('TEST'))
+            ]),
+            Menu("Edit", [
+                MenuItem("Copy", lambda: print('TEST'))
+            ])
+        ], font)
         self.ui_renderer = UIRenderer(self.menubar, font)
         bar_h = self.menubar.layout.height
 
