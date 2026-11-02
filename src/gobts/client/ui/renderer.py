@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pygame
 
+from gobts.client.ui.layout import PAD_X
 from gobts.client.ui.menubar import MenuBar
 
 class UIRenderer:
@@ -22,6 +23,14 @@ class UIRenderer:
             if i == menubar.open_index or i == hover:
                 pygame.draw.rect(surface, (100, 100, 100), rect)
             self._blit_text(surface, menu.label, (255, 255, 255), center=(rect.centerx, rect.centery - 2))
+
+        if menubar.open_index != None:
+            open_i = menubar.open_index
+            pygame.draw.rect(surface, (60, 60, 60), layout.dropdown_rects[open_i])
+            for item, rect in zip(menubar.menus[open_i].items, layout.item_rects[open_i]):
+                if rect.collidepoint(mouse):
+                    pygame.draw.rect(surface, (100, 100, 100), rect)
+                self._blit_text(surface, item.label, (255, 255, 255), midleft=(rect.x + PAD_X, rect.centery - 2))
 
     def _blit_text(self, surface: pygame.Surface, text, color: pygame.Color, **position):
         image = self.font.render(text, True, color)

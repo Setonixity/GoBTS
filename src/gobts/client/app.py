@@ -10,7 +10,7 @@ WINDOW_TITLE = "GO TO FUCKING SLEEP"
 WINDOW_SIZE = (800, 822)
 FPS = 60
 
-REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPOSED}
+REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPOSED, pygame.MOUSEMOTION}
 
 class ClientApp:
     def __init__(self, size: int = 19):
@@ -27,7 +27,7 @@ class ClientApp:
 
         layout_size = None
         font = pygame.font.SysFont("ubuntu,segoeui,dejavusans,arial", 13)
-        self.menubar = MenuBar([Menu("TEST", [MenuItem("TEST", print("TEST"))])], font)
+        self.menubar = MenuBar([Menu("TEST", [MenuItem("TEST", lambda: print('TEST'))])], font)
         self.ui_renderer = UIRenderer(self.menubar, font)
         bar_h = self.menubar.layout.height
 
@@ -42,9 +42,12 @@ class ClientApp:
                 events = pygame.event.get()
 
             for event in events:
+                if self.menubar.handle_event(event):
+                    needs_redraw = True
+                    continue
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type in REDRAW_EVENTS or event.type == pygame.MOUSEMOTION:
+                elif event.type in REDRAW_EVENTS:
                     needs_redraw = True
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     self.on_click(self.b_renderer.layout.to_point(*event.pos))
