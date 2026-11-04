@@ -12,6 +12,9 @@ def parse(text: str) -> list[SGFNode]:
     return Parser(text).parse()
 
 WHITESPACE = re.compile(r"\s*")
+TREE_START = re.compile(r"\(\s*;")
+VALUE_END = re.compile(r"[\]\\]")
+PROP_ID = re.compile(r"[A-Za-z]+")
 
 class Parser:
 
@@ -27,7 +30,7 @@ class Parser:
 
         while True:
             if not branch_points:
-                match = re.search(r"\(\s*;", text, self.pos)
+                match = TREE_START.search(text, self.pos)
                 if match is None:
                     break
                 self.pos = match.start()
@@ -36,7 +39,7 @@ class Parser:
             """(;C[root] (;C[a];C[b] (;C[c]) (;C[d];C[e]) ) )
             - ( starts a subtree, so save the preceding node as a branch point we will go back to once it closes with ), another ( right away would make the next node a second child of the branch point.
             """
-            char = text[self.pos]
+            char: str = text[self.pos]
             if char == "(":
                 branch_points.append(current)
                 self.pos = WHITESPACE.match(text, self.pos + 1).end()
@@ -51,19 +54,26 @@ class Parser:
                     current.children.append(node)
                 current = node
                 self.pos += 1
-            # elif char.isascii() and char.isalpha():
+            elif char.isascii() and char.isalpha():
+                id = self.read_id()
+                current.properties.setdefault(id, []).extend(self.read_values(id))
+            elif char.isspace():
+                self.pos += 1
+
+        return roots
+
                 
     def read_id(self) -> str:
-        name = re.match(r"[A-Za-z]+", self.text, self.pos).group()
-        self.pos += len(name)
-        return "".join(c for c in name if c.isupper())
+        match = PROP_ID.match(self.text, self.pos)
+        self.pos = match.end()
+        return "".join(c for c in match.group() if c.isupper())
 
     def read_value(self) -> str:
         self.pos += 1
         parts = []
         while True:
             # handle \] as literal
-            match = re.search(r"[\]\\]", self.text, self.pos)
+            match = VALUE_END.search(self.text, self.pos)
             parts.append(self.text[self.pos:match.start()])
             if match.group() == "]":
                 self.pos = match.end()
@@ -76,10 +86,14 @@ class Parser:
     def read_values(self, id: str) -> list[str]:
         values = []
         self.pos = WHITESPACE.match(self.text, self.pos).end()
-        while self.text.startswitch("[", self.pos):
+        while self.text.startswith("[", self.pos):
             values.append(self.read_value())
+            self.pos = WHITESPACE.match(self.text, self.pos).end()
+        return values
+
+    
 
 
-parse('(;C[root](;C[a];C[b](;C[c])(;C[d];C[e])))')
+# print(*parse('(;C[root](;C[a];C[b](;C[c])(;C[d];C[e])))')[0].main_line())
 
     
