@@ -17,9 +17,9 @@ REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPO
 class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
-        # self.board = Board(size)
-        node = list(parser.load("data/gobts/sgf/test_1.sgf")[0].main_line())[-1]
-        self.board = converter.board_at(node)
+        self.board = Board(size)
+        # node = list(parser.load("data/gobts/sgf/test_1.sgf")[0].main_line())[-1]
+        # self.board = converter.board_at(node)
         self.color_to_play = Color.BLACK
 
     def run(self):
@@ -31,8 +31,8 @@ class ClientApp:
         font = pygame.font.SysFont("ubuntu,segoeui,dejavusans,arial", 13)
         self.menubar = MenuBar([
             Menu("File", [
-                MenuItem("New Game", lambda: self.board.clear()),
-                MenuItem("Open Game", lambda: print('TEST'))
+                MenuItem("New Game", self.new_game),
+                MenuItem("Open Game", self.open_game)
             ]),
             Menu("Edit", [
                 MenuItem("Copy", lambda: print('TEST'))
@@ -86,5 +86,24 @@ class ClientApp:
         play(self.board, point, self.color_to_play)
         self.color_to_play = self.color_to_play.switch()
     
+    def open_game(self):
+        path = dialogs.ask_open_path("Open Game")
+        if path == None:
+            return
+        try:
+            node = list(parser.load(path)[0].main_line())[-1]
+            board = converter.board_at(node)
+            self.board = board
+            self.size = board.size
+            self.color_to_play = Color.WHITE if "B" in node else Color.BLACK
+            self.b_renderer.board = board
+            self.layout_size = None
+        except:
+            dialogs.show_error("Could not open file")
+
+    def new_game(self):
+        self.board.clear()
+        self.color_to_play = Color.BLACK
+
 
 ClientApp().run()
