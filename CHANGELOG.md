@@ -29,6 +29,7 @@
 ## Fixed
 - (client) wrong move order
 - (client) new game not resetting play color
+- (client) when loading sgf, layout size doesn't update
 
 ## Changed
 - (core) moved play() to core/rules.py

@@ -27,9 +27,11 @@ class MenuBar:
     def handle_click(self, pos: tuple[float, float]) -> bool:
         title = self.layout.title_at(pos)
         if title != None:
-            self.open_index = title
+            self.open_index = None if title == self.open_index else title
             return True
         if self.open_index != None:
+            if self.layout.item_at(self.open_index, pos) == None:
+                self.open_index = None
             return True
         return pos[1] < self.layout.height
 

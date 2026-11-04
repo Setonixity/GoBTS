@@ -27,7 +27,7 @@ class ClientApp:
         pygame.display.set_mode(WINDOW_SIZE, pygame.RESIZABLE)
         pygame.display.set_caption(WINDOW_TITLE)
 
-        layout_size = None
+        self.layout_size = None
         font = pygame.font.SysFont("ubuntu,segoeui,dejavusans,arial", 13)
         self.menubar = MenuBar([
             Menu("File", [
@@ -65,9 +65,9 @@ class ClientApp:
 
             if needs_redraw:
                 screen = pygame.display.get_surface()
-                if screen.get_size() != layout_size:
-                    layout_size = screen.get_size()
-                    self.b_renderer.layout = BoardLayout.fit(self.size, layout_size[0], layout_size[1] - bar_h, top=bar_h)
+                if screen.get_size() != self.layout_size:
+                    self.layout_size = screen.get_size()
+                    self.b_renderer.layout = BoardLayout.fit(self.size, self.layout_size[0], self.layout_size[1] - bar_h, top=bar_h)
                 ghost_preview = None
                 if pygame.mouse.get_focused():
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
@@ -99,7 +99,7 @@ class ClientApp:
             self.b_renderer.board = board
             self.layout_size = None
         except:
-            dialogs.show_error("Could not open file")
+            dialogs.show_error("Could not open file", f"{path}")
 
     def new_game(self):
         self.board.clear()
