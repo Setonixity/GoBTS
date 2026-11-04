@@ -4,6 +4,8 @@ from gobts.client.board import *
 from gobts.client.ui import *
 from gobts.core import *
 
+import gobts.sgf.converter as converter
+import gobts.sgf.parser as parser
 import pygame
 
 WINDOW_TITLE = "GO TO FUCKING SLEEP"
@@ -15,7 +17,9 @@ REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPO
 class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
-        self.board = Board(size)
+        # self.board = Board(size)
+        node = list(parser.load("data/gobts/sgf/test_1.sgf")[0].main_line())[-1]
+        self.board = converter.board_at(node)
         self.color_to_play = Color.BLACK
 
     def run(self):

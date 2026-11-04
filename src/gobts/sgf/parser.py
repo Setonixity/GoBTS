@@ -94,6 +94,6 @@ class Parser:
     
 
 
-# print(*parse('(;C[root](;C[a];C[b](;C[c])(;C[d];C[e])))')[0].main_line())
+# print(parse('(;C[root](;C[a];C[b](;C[c])(;C[d];C[e])))')[0])
 
     

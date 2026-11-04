@@ -30,7 +30,7 @@ from typing import Iterator
 class SGFNode:
     properties: dict[str, list[str]] = field(default_factory=dict)
     parent: SGFNode|None = field(default=None, repr=False)
-    children: list[SGFNode] = field(default_factory=list, repr=False)
+    children: list[SGFNode] = field(default_factory=list, repr=True)
 
     def get(self, id: str) -> list[str]:
         return list(self.properties.get(id, []))
