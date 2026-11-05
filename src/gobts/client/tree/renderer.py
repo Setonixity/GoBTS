@@ -9,7 +9,7 @@ from gobts.sgf.node import SGFNode
 
 STONE_RADIUS = 13
 LINE_WIDTH = 2
-SUPERSAMPLE = 8
+SUPERSAMPLE = 16
 
 class TreeRenderer:
 
@@ -18,7 +18,7 @@ class TreeRenderer:
         self.sprites: dict[tuple[Color|None, bool], pygame.Surface] = {}
 
         for color, rgb in ((Color.BLACK, (0, 0, 0)), (Color.WHITE, (255, 255, 255)), (None, (30, 30, 30))):
-            sprite = self.make_sprite(rgb)
+            sprite = self.make_node_sprite(rgb)
             faded = sprite.copy()
             faded.set_alpha(100)
             self.sprites[(color, False)] = sprite
@@ -32,7 +32,7 @@ class TreeRenderer:
             path.add(node)
             node = node.parent
 
-        pygame.draw.rect(surface, (128, 128, 128), layout.rect)
+        pygame.draw.rect(surface, (0, 0, 0), layout.rect)
         clip = surface.get_clip()
         surface.set_clip(layout.rect)
 
@@ -55,11 +55,15 @@ class TreeRenderer:
             surface.blit(self.sprites[(color, node not in path)], (x - STONE_RADIUS, y - STONE_RADIUS))
         surface.set_clip(clip)
 
-    def make_sprite(self, rgb: tuple[int, int, int]) -> pygame.Surface:
+    def make_node_sprite(self, rgb: tuple[int, int, int]) -> pygame.Surface:
+        edge_rgb = (255,255,255)
         size = STONE_RADIUS*2 + 1
         ss_size = size*SUPERSAMPLE
         big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
-        pygame.draw.circle(big, rgb, (ss_size/2, ss_size/2), STONE_RADIUS*SUPERSAMPLE)
+        big.fill((*edge_rgb, 0))
+        edge = STONE_RADIUS*0.1 * SUPERSAMPLE
+        pygame.draw.circle(big, edge_rgb, (ss_size/2, ss_size/2), STONE_RADIUS*SUPERSAMPLE)
+        pygame.draw.circle(big, rgb, (ss_size/2, ss_size/2), STONE_RADIUS*SUPERSAMPLE - edge)
         return pygame.transform.smoothscale(big, (size, size))
 
     def draw_line(self, surface: pygame.Surface, rgb: tuple[int, int, int], start: tuple[float, float], end: tuple[float, float]):

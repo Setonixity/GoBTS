@@ -5,6 +5,8 @@ import pygame
 from gobts.client.board.layout import BoardLayout
 from gobts.core.board import *
 
+SUPERSAMPLE = 8
+
 class BoardRenderer:
 
     def __init__(self, board: Board, layout: BoardLayout):
@@ -29,7 +31,7 @@ class BoardRenderer:
             pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(0, i)), layout.to_pixel(Point(size-1, i)), line_width)
         # star points
         star_radius = max(2, round(layout.spacing * 0.1))
-        star_sprite = self._star_sprite(star_radius)
+        star_sprite = self.make_star_sprite(star_radius)
         for point in star_points(layout.size):
             x, y = layout.to_pixel(point)
             surface.blit(star_sprite, (x - star_radius, y - star_radius))
@@ -37,10 +39,10 @@ class BoardRenderer:
         radius = layout.stone_radius()
         for point, color in self.board.stones:
             x, y = layout.to_pixel(point)
-            surface.blit(self._stone_sprite(color, radius), (x - radius, y - radius))
+            surface.blit(self.make_stone_sprite(color, radius), (x - radius, y - radius))
         if ghost_preview != None and self.board.is_empty(ghost_preview[0]):
             x, y = layout.to_pixel(ghost_preview[0])
-            sprite = self._stone_sprite(ghost_preview[1], radius).copy()
+            sprite = self.make_stone_sprite(ghost_preview[1], radius).copy()
             sprite.set_alpha(100)
             surface.blit(sprite, (x - radius, y - radius))
 
@@ -91,41 +93,39 @@ class BoardRenderer:
                 row_chars.append(char)
             print(HORIZONTAL.join(row_chars))
 
-    def _stone_sprite(self, color: Color, radius: float) -> pygame.Surface:
+    def make_stone_sprite(self, color: Color, radius: float) -> pygame.Surface:
         if radius != self._cached_radius:
             self._sprite_cache.clear()
             self._cached_radius = radius
 
-        _supersampled = 8
         edge_color = (0,0,0)
         fill_color = (0,0,0) if color == Color.BLACK else (255, 255, 255)
         sprite = self._sprite_cache.get((color, radius))
         if sprite == None:
             size = radius*2 + 1
-            ss_size = size*_supersampled
+            ss_size = size*SUPERSAMPLE
             big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
             center = (ss_size/2, ss_size/2)
-            edge = max(1, radius*0.05) * _supersampled
-            pygame.draw.circle(big, edge_color, center, radius*_supersampled)
-            pygame.draw.circle(big, fill_color, center, radius*_supersampled - edge)
+            edge = max(1, radius*0.05) * SUPERSAMPLE
+            pygame.draw.circle(big, edge_color, center, radius*SUPERSAMPLE)
+            pygame.draw.circle(big, fill_color, center, radius*SUPERSAMPLE - edge)
             sprite = pygame.transform.smoothscale(big, (size, size))
             self._sprite_cache[(color, radius)] = sprite
         return sprite
 
-    def _star_sprite(self, radius: float) -> pygame.Surface:
+    def make_star_sprite(self, radius: float) -> pygame.Surface:
         if radius != self._cached_star_radius:
             self._star_cache.clear()
             self._cached_star_radius = radius
 
-        _supersampled = 8
         fill_color = (0,0,0)
         sprite = self._star_cache.get(radius)
         if sprite == None:
             size = radius*2 + 1
-            ss_size = size*_supersampled
+            ss_size = size*SUPERSAMPLE
             big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
             center = (ss_size/2, ss_size/2)
-            pygame.draw.circle(big, fill_color, center, radius*_supersampled)
+            pygame.draw.circle(big, fill_color, center, radius*SUPERSAMPLE)
             sprite = pygame.transform.smoothscale(big, (size, size))
             self._star_cache[radius] = sprite
         return sprite
