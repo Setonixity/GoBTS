@@ -39,3 +39,7 @@
 - (client) a game tree viewer
 - (client) traversal keybinds
 - (client) centered current node
+
+## Changed
+- (client) switched color changing marker for bg highlight
+- (client) root node marker.

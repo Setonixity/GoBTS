@@ -19,19 +19,14 @@ class TreeRenderer:
         self.sprites: dict[tuple[Color|None, bool], pygame.Surface] = {}
         self.backing = self.make_node_sprite((33,33,33), edge_rgb=(33,33,33))
 
-        for color, rgb in ((Color.BLACK, (0, 0, 0)), (Color.WHITE, (255, 255, 255)), (None, (30, 30, 30))):
+        for color, rgb in ((Color.BLACK, (0, 0, 0)), (Color.WHITE, (255, 255, 255)), (None, (90, 90, 90))):
             sprite = self.make_node_sprite(rgb)
             faded = sprite.copy()
             faded.set_alpha(100)
             self.sprites[(color, False)] = sprite
             self.sprites[(color, True)] = faded
 
-        size = HIGHLIGHT_RADIUS*2 + 1
-        ss_size = size*SUPERSAMPLE
-        big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
-        big.fill((*HIGHLIGHT_RGB, 0))
-        pygame.draw.rect(big, HIGHLIGHT_RGB, (0, 0, ss_size, ss_size), border_radius=HIGHLIGHT_CORNER*SUPERSAMPLE)
-        self.highlight = pygame.transform.smoothscale(big, (size, size))
+        self.highlight = self.make_highlight_sprite()
 
     def draw(self, surface: pygame.Surface, current: SGFNode|None = None):
         layout = self.layout
@@ -78,6 +73,14 @@ class TreeRenderer:
         edge_width = 1
         pygame.draw.circle(big, edge_rgb, (ss_size/2, ss_size/2), STONE_RADIUS*SUPERSAMPLE)
         pygame.draw.circle(big, rgb, (ss_size/2, ss_size/2), STONE_RADIUS*SUPERSAMPLE - edge_width*SUPERSAMPLE)
+        return pygame.transform.smoothscale(big, (size, size))
+
+    def make_highlight_sprite(self) -> pygame.Surface:
+        size = HIGHLIGHT_RADIUS*2 + 1
+        ss_size = size*SUPERSAMPLE
+        big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+        big.fill((*HIGHLIGHT_RGB, 0))
+        pygame.draw.rect(big, HIGHLIGHT_RGB, (0, 0, ss_size, ss_size), border_radius=HIGHLIGHT_CORNER*SUPERSAMPLE)
         return pygame.transform.smoothscale(big, (size, size))
 
     def draw_line(self, surface: pygame.Surface, rgb: tuple[int, int, int], start: tuple[float, float], end: tuple[float, float]):

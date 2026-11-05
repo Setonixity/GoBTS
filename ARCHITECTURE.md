@@ -8,10 +8,13 @@ GOBTS/
 ├── CHANGELOG.md
 ├── ARCHITECTURE.md
 ├── data/gobts/
-|   └── images/
-|   └── sgf/
+│   └── images/
+│   └── sgf/
 └── src/gobts/
     └── client/
+    │   └── board/
+    │   └── tree/
+    │   └── ui/
     └── core/
     └── server/
     └── sgf/

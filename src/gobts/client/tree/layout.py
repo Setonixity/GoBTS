@@ -22,10 +22,10 @@ class TreeLayout:
     @classmethod
     def fit(cls, root: SGFNode, focus: SGFNode, rect: pygame.Rect) -> TreeLayout:
         positions = grid_positions(root)
-        cols = max(col for col, _ in positions.values()) + 1
+        # cols = max(col for col, _ in positions.values()) + 1
         # rows = max(row for _, row in positions.values()) + 1
         focus_col, focus_row = positions[focus]
-        scroll_x = scroll_offset((cols-1)*SPACING + 2*PAD, rect.width, PAD + focus_col*SPACING)
+        # scroll_x = scroll_offset((cols-1)*SPACING + 2*PAD, rect.width, PAD + focus_col*SPACING)
         # scroll_y = PAD + focus_row*SPACING - rect.height/2
         
         start_y = rect.y + PAD
@@ -38,10 +38,15 @@ class TreeLayout:
         elif focus_y < top:
             start_y += math.ceil((top - focus_y) / page) * page
         start_y = min(start_y, rect.y + PAD)
+
+        visible = [focus_col] + [col for col, row in positions.values() if rect.top - SPACING/2 < start_y + row*SPACING < rect.bottom + SPACING/2]
+        first_col, last_col = min(visible), max(visible)
+        scroll_x = scroll_offset((last_col - first_col)*SPACING + 2*PAD, rect.width, PAD + (focus_col - first_col)*SPACING)
+
         return cls(
             rect = rect,
             positions = positions,
-            start_x = rect.x + PAD - scroll_x,
+            start_x = rect.x + PAD - first_col*SPACING - scroll_x,
             start_y = start_y,
             spacing = SPACING
         )
@@ -77,4 +82,6 @@ def grid_positions(root: SGFNode) -> dict[SGFNode, tuple[int, int]]:
     return positions
 
 def scroll_offset(content: float, view: float, focus: float) -> float:
-    return min(max(focus - view/2, 0), max(content - view, 0))
+    if content <= view: 
+        return (content - view) / 2
+    return max(focus + PAD - view, 0)
