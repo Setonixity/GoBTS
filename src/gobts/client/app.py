@@ -82,7 +82,7 @@ class ClientApp:
                     if point != None:
                         ghost_preview = (point, self.color_to_play)
                 self.b_renderer.draw(screen, ghost_preview)
-                self.t_renderer.draw(screen)
+                self.t_renderer.draw(screen, self.node)
                 self.ui_renderer.draw(screen)
                 pygame.display.flip()
                 needs_redraw = False

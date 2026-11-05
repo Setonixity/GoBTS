@@ -13,21 +13,31 @@ class TreeRenderer:
 
     def __init__(self, layout: TreeLayout):
         self.layout = layout
-        self.sprites = {
-            Color.BLACK: self.make_sprite((0, 0, 0)),
-            Color.WHITE: self.make_sprite((255, 255, 255)),
-            None: self.make_sprite((30, 30, 30)),
-        }
+        self.sprites: dict[tuple[Color|None, bool], pygame.Surface] = {}
 
-    def draw(self, surface: pygame.Surface):
+        for color, rgb in ((Color.BLACK, (0, 0, 0)), (Color.WHITE, (255, 255, 255)), (None, (30, 30, 30))):
+            sprite = self.make_sprite(rgb)
+            faded = sprite.copy()
+            faded.set_alpha(100)
+            self.sprites[(color, False)] = sprite
+            self.sprites[(color, True)] = faded
+
+    def draw(self, surface: pygame.Surface, current: SGFNode|None = None):
         layout = self.layout
+        path: set[SGFNode] = set(current.main_line()) if current != None else set()
+        node = current
+        while node != None: # back to root
+            path.add(node)
+            node = node.parent
+
         pygame.draw.rect(surface, (128, 128, 128), layout.rect)
         clip = surface.get_clip()
         surface.set_clip(layout.rect)
+
         for node in layout.positions:
             color = Color.BLACK if "B" in node else Color.WHITE if "W" in node else None
             x, y = layout.to_pixel(node)
-            surface.blit(self.sprites[color], (x - STONE_RADIUS, y - STONE_RADIUS))
+            surface.blit(self.sprites[(color, node not in path)], (x - STONE_RADIUS, y - STONE_RADIUS))
         surface.set_clip(clip)
 
     def make_sprite(self, rgb: tuple[int, int, int]) -> pygame.Surface:
