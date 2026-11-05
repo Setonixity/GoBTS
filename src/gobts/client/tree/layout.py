@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 
 import pygame
 
@@ -8,6 +9,7 @@ from gobts.sgf.node import SGFNode
 
 SPACING = 28
 PAD = 20
+SCROLL_MARGIN = 4*SPACING
 
 @dataclass
 class TreeLayout:
@@ -24,12 +26,23 @@ class TreeLayout:
         # rows = max(row for _, row in positions.values()) + 1
         focus_col, focus_row = positions[focus]
         scroll_x = scroll_offset((cols-1)*SPACING + 2*PAD, rect.width, PAD + focus_col*SPACING)
-        scroll_y = PAD + focus_row*SPACING - rect.height/2
+        # scroll_y = PAD + focus_row*SPACING - rect.height/2
+        
+        start_y = rect.y + PAD
+        margin = min(SCROLL_MARGIN, rect.height/2)
+        top, bottom = rect.top + margin, rect.bottom - margin
+        page = max(2, int((bottom - top) / SPACING) // 2 * 2) * SPACING
+        focus_y = start_y + focus_row*SPACING
+        if focus_y > bottom:
+            start_y -= math.ceil((focus_y - bottom) / page) * page
+        elif focus_y < top:
+            start_y += math.ceil((top - focus_y) / page) * page
+        start_y = min(start_y, rect.y + PAD)
         return cls(
             rect = rect,
             positions = positions,
             start_x = rect.x + PAD - scroll_x,
-            start_y = rect.y + PAD - scroll_y,
+            start_y = start_y,
             spacing = SPACING
         )
 
