@@ -18,13 +18,18 @@ class TreeLayout:
     spacing: float
 
     @classmethod
-    def fit(cls, root: SGFNode, rect: pygame.Rect) -> TreeLayout:
+    def fit(cls, root: SGFNode, focus: SGFNode, rect: pygame.Rect) -> TreeLayout:
         positions = grid_positions(root)
+        cols = max(col for col, _ in positions.values()) + 1
+        rows = max(row for _, row in positions.values()) + 1
+        focus_col, focus_row = positions[focus]
+        scroll_x = scroll_offset((cols-1)*SPACING + 2*PAD, rect.width, PAD + focus_col*SPACING)
+        scroll_y = scroll_offset((rows-1)*SPACING + 2*PAD, rect.height, PAD + focus_row*SPACING)
         return cls(
             rect = rect,
             positions = positions,
-            start_x = rect.x + PAD,
-            start_y = rect.y + PAD,
+            start_x = rect.x + PAD - scroll_x,
+            start_y = rect.y + PAD - scroll_y,
             spacing = SPACING
         )
 
@@ -57,3 +62,6 @@ def grid_positions(root: SGFNode) -> dict[SGFNode, tuple[int, int]]:
         for child in reversed(sequence[-1].children):
             to_place.append((child, col, end_row))
     return positions
+
+def scroll_offset(content: float, view: float, focus: float) -> float:
+    return min(max(focus - view/2, 0), max(content - view, 0))

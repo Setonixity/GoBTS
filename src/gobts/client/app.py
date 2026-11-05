@@ -48,7 +48,7 @@ class ClientApp:
         bar_h = self.menubar.layout.height
 
         self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, WINDOW_SIZE[0] - TREE_WIDTH, WINDOW_SIZE[1] - bar_h, top=bar_h))
-        self.t_renderer = TreeRenderer(TreeLayout.fit(self.root, pygame.Rect(WINDOW_SIZE[0] - TREE_WIDTH, bar_h, TREE_WIDTH, WINDOW_SIZE[1] - bar_h)))
+        self.t_renderer = TreeRenderer(TreeLayout.fit(self.root, self.node, pygame.Rect(WINDOW_SIZE[0] - TREE_WIDTH, bar_h, TREE_WIDTH, WINDOW_SIZE[1] - bar_h)))
 
         running = True
         needs_redraw = True
@@ -75,14 +75,14 @@ class ClientApp:
                 if screen.get_size() != self.layout_size:
                     self.layout_size = screen.get_size()
                     self.b_renderer.layout = BoardLayout.fit(self.size, self.layout_size[0] - TREE_WIDTH, self.layout_size[1] - bar_h, top=bar_h)
-                    self.t_renderer.layout = TreeLayout.fit(self.root, pygame.Rect(self.layout_size[0] - TREE_WIDTH, bar_h, TREE_WIDTH, self.layout_size[1] - bar_h))
+                    self.t_renderer.layout = TreeLayout.fit(self.root, self.node, pygame.Rect(self.layout_size[0] - TREE_WIDTH, bar_h, TREE_WIDTH, self.layout_size[1] - bar_h))
                 ghost_preview = None
                 if pygame.mouse.get_focused():
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
                     if point != None:
                         ghost_preview = (point, self.color_to_play)
                 self.b_renderer.draw(screen, ghost_preview)
-                self.t_renderer.draw(screen, self.node)
+                self.t_renderer.draw(screen)
                 self.ui_renderer.draw(screen)
                 pygame.display.flip()
                 needs_redraw = False
