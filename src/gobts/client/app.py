@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 from gobts.client.board import *
+from gobts.client.tree.layout import TreeLayout
+from gobts.client.tree.renderer import TreeRenderer
 from gobts.client.ui import *
 from gobts.core import *
 
 import gobts.sgf.converter as converter
+from gobts.sgf.node import SGFNode
 import gobts.sgf.parser as parser
 import pygame
 
 WINDOW_TITLE = "GO TO FUCKING SLEEP"
-WINDOW_SIZE = (800, 822)
+TREE_WIDTH = 240
+WINDOW_SIZE = (800 + TREE_WIDTH, 822)
 FPS = 60
 
 REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPOSED, pygame.MOUSEMOTION}
@@ -18,6 +22,8 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
+        self.root = SGFNode()
+        self.node = self.root
         # node = list(parser.load("data/gobts/sgf/test_1.sgf")[0].main_line())[-1]
         # self.board = converter.board_at(node)
         self.color_to_play = Color.BLACK
@@ -41,7 +47,8 @@ class ClientApp:
         self.ui_renderer = UIRenderer(self.menubar, font)
         bar_h = self.menubar.layout.height
 
-        self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, WINDOW_SIZE[0], WINDOW_SIZE[1] - bar_h, top=bar_h))
+        self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, WINDOW_SIZE[0] - TREE_WIDTH, WINDOW_SIZE[1] - bar_h, top=bar_h))
+        self.t_renderer = TreeRenderer(TreeLayout.fit(self.root, pygame.Rect(WINDOW_SIZE[0] - TREE_WIDTH, bar_h, TREE_WIDTH, WINDOW_SIZE[1] - bar_h)))
 
         running = True
         needs_redraw = True
@@ -67,13 +74,15 @@ class ClientApp:
                 screen = pygame.display.get_surface()
                 if screen.get_size() != self.layout_size:
                     self.layout_size = screen.get_size()
-                    self.b_renderer.layout = BoardLayout.fit(self.size, self.layout_size[0], self.layout_size[1] - bar_h, top=bar_h)
+                    self.b_renderer.layout = BoardLayout.fit(self.size, self.layout_size[0] - TREE_WIDTH, self.layout_size[1] - bar_h, top=bar_h)
+                    self.t_renderer.layout = TreeLayout.fit(self.root, pygame.Rect(self.layout_size[0] - TREE_WIDTH, bar_h, TREE_WIDTH, self.layout_size[1] - bar_h))
                 ghost_preview = None
                 if pygame.mouse.get_focused():
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
                     if point != None:
                         ghost_preview = (point, self.color_to_play)
                 self.b_renderer.draw(screen, ghost_preview)
+                self.t_renderer.draw(screen, self.node)
                 self.ui_renderer.draw(screen)
                 pygame.display.flip()
                 needs_redraw = False
@@ -91,12 +100,14 @@ class ClientApp:
         if path == None:
             return
         try:
-            node = list(parser.load(path)[0].main_line())[-1]
+            root = parser.load(path)[0]
+            node = list(root.main_line())[-1]
             board = converter.board_at(node)
             self.board = board
             self.size = board.size
             self.color_to_play = Color.WHITE if "B" in node else Color.BLACK
             self.b_renderer.board = board
+            self.root, self.node = root, node
             self.layout_size = None
         except:
             dialogs.show_error("Could not open file", f"{path}")
@@ -104,6 +115,9 @@ class ClientApp:
     def new_game(self):
         self.board.clear()
         self.color_to_play = Color.BLACK
+        self.root = SGFNode()
+        self.node = self.root
+        self.layout_size = None
 
 
 ClientApp().run()
