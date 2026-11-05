@@ -32,6 +32,7 @@ class ClientApp:
         pygame.init()
         pygame.display.set_mode(WINDOW_SIZE, pygame.RESIZABLE)
         pygame.display.set_caption(WINDOW_TITLE)
+        pygame.key.set_repeat(300, 50)
 
         self.layout_size = None
         font = pygame.font.SysFont("ubuntu,segoeui,dejavusans,arial", 13)
@@ -69,6 +70,9 @@ class ClientApp:
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     self.on_click(self.b_renderer.layout.to_point(*event.pos))
                     needs_redraw = True
+                elif event.type == pygame.KEYDOWN:
+                    self.on_key(event.key)
+                    needs_redraw = True
 
             if needs_redraw:
                 screen = pygame.display.get_surface()
@@ -94,6 +98,21 @@ class ClientApp:
             return
         play(self.board, point, self.color_to_play)
         self.color_to_play = self.color_to_play.switch()
+
+    def on_key(self, key: int):
+        if key == pygame.K_UP and self.node.parent != None:
+            self.go_to(self.node.parent)
+        elif key == pygame.K_DOWN and self.node.children:
+            self.go_to(self.node.children[0])
+
+    def go_to(self, node: SGFNode):
+        board = converter.board_at(node)
+        self.board = board
+        self.size = board.size
+        self.color_to_play = Color.WHITE if "B" in node else Color.BLACK
+        self.b_renderer.board = board
+        self.node = node
+        self.layout_size = None
     
     def open_game(self):
         path = dialogs.ask_open_path("Open Game")
@@ -102,13 +121,9 @@ class ClientApp:
         try:
             root = parser.load(path)[0]
             node = list(root.main_line())[-1]
-            board = converter.board_at(node)
-            self.board = board
-            self.size = board.size
-            self.color_to_play = Color.WHITE if "B" in node else Color.BLACK
-            self.b_renderer.board = board
-            self.root, self.node = root, node
-            self.layout_size = None
+            self.go_to(node)
+            self.root= root
+            
         except:
             dialogs.show_error("Could not open file", f"{path}")
 

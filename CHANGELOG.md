@@ -37,3 +37,5 @@
 ## [0.0.3] - 5-11-2026
 ### Added
 - (client) a game tree viewer
+- (client) traversal keybinds
+- (client) centered current node

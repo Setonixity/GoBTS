@@ -21,10 +21,10 @@ class TreeLayout:
     def fit(cls, root: SGFNode, focus: SGFNode, rect: pygame.Rect) -> TreeLayout:
         positions = grid_positions(root)
         cols = max(col for col, _ in positions.values()) + 1
-        rows = max(row for _, row in positions.values()) + 1
+        # rows = max(row for _, row in positions.values()) + 1
         focus_col, focus_row = positions[focus]
         scroll_x = scroll_offset((cols-1)*SPACING + 2*PAD, rect.width, PAD + focus_col*SPACING)
-        scroll_y = scroll_offset((rows-1)*SPACING + 2*PAD, rect.height, PAD + focus_row*SPACING)
+        scroll_y = PAD + focus_row*SPACING - rect.height/2
         return cls(
             rect = rect,
             positions = positions,
