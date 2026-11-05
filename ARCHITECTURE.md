@@ -34,3 +34,4 @@ For SGF parsing, the code follows this [naming convention](https://homepages.cwi
 - pygame SDL and tkinter on Linux: [github issue](https://github.com/pygame/pygame/issues/1995)
 - keep pygame responsive: [riptutorial](https://riptutorial.com/pygame/example/18046/event-loop)
 - lru cache safeguard: [reddit](https://www.reddit.com/r/pygame/comments/10kgugs/looking_for_tips_on_how_to_optimize_my_pygame/)
+- fix supersampling gamma-average: [ericbasseur](https://www.ericbrasseur.org/gamma.html?i=1)

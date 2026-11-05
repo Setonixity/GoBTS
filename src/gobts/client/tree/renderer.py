@@ -7,15 +7,17 @@ from gobts.client.tree.layout import TreeLayout
 from gobts.core.board import Color
 from gobts.sgf.node import SGFNode
 
-STONE_RADIUS = 13
-LINE_WIDTH = 2
-SUPERSAMPLE = 16
+STONE_RADIUS = 10
+MARKER_RADIUS = 5
+LINE_WIDTH = 1
+SUPERSAMPLE = 8
 
 class TreeRenderer:
 
     def __init__(self, layout: TreeLayout):
         self.layout = layout
         self.sprites: dict[tuple[Color|None, bool], pygame.Surface] = {}
+        self.backing = self.make_node_sprite((33,33,33), edge_rgb=(33,33,33))
 
         for color, rgb in ((Color.BLACK, (0, 0, 0)), (Color.WHITE, (255, 255, 255)), (None, (30, 30, 30))):
             sprite = self.make_node_sprite(rgb)
@@ -23,6 +25,10 @@ class TreeRenderer:
             faded.set_alpha(100)
             self.sprites[(color, False)] = sprite
             self.sprites[(color, True)] = faded
+
+        white_marker = self.make_marker_sprite((255, 255, 255))
+        black_marker = self.make_marker_sprite((0, 0, 0))
+        self.markers: dict[Color|None, pygame.Surface] = {Color.BLACK: white_marker, Color.WHITE: black_marker, None: white_marker}
 
     def draw(self, surface: pygame.Surface, current: SGFNode|None = None):
         layout = self.layout
@@ -32,7 +38,7 @@ class TreeRenderer:
             path.add(node)
             node = node.parent
 
-        pygame.draw.rect(surface, (0, 0, 0), layout.rect)
+        pygame.draw.rect(surface, (33,33,33), layout.rect)
         clip = surface.get_clip()
         surface.set_clip(layout.rect)
 
@@ -52,18 +58,30 @@ class TreeRenderer:
         for node in layout.positions:
             color = Color.BLACK if "B" in node else Color.WHITE if "W" in node else None
             x, y = layout.to_pixel(node)
-            surface.blit(self.sprites[(color, node not in path)], (x - STONE_RADIUS, y - STONE_RADIUS))
+            pos = (x - STONE_RADIUS, y - STONE_RADIUS)
+            surface.blit(self.backing, pos)
+            surface.blit(self.sprites[(color, node not in path)], pos)
+            if node == current:
+                surface.blit(self.markers[color], pos)
         surface.set_clip(clip)
 
-    def make_node_sprite(self, rgb: tuple[int, int, int]) -> pygame.Surface:
-        edge_rgb = (255,255,255)
+    def make_node_sprite(self, rgb: tuple[int, int, int], edge_rgb: tuple[int, int, int] = (150, 150, 150)) -> pygame.Surface:
         size = STONE_RADIUS*2 + 1
         ss_size = size*SUPERSAMPLE
         big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
         big.fill((*edge_rgb, 0))
-        edge = STONE_RADIUS*0.1 * SUPERSAMPLE
+        edge_width = 1
         pygame.draw.circle(big, edge_rgb, (ss_size/2, ss_size/2), STONE_RADIUS*SUPERSAMPLE)
-        pygame.draw.circle(big, rgb, (ss_size/2, ss_size/2), STONE_RADIUS*SUPERSAMPLE - edge)
+        pygame.draw.circle(big, rgb, (ss_size/2, ss_size/2), STONE_RADIUS*SUPERSAMPLE - edge_width*SUPERSAMPLE)
+        return pygame.transform.smoothscale(big, (size, size))
+
+    def make_marker_sprite(self, rgb: tuple[int, int, int]) -> pygame.Surface:
+        size = STONE_RADIUS*2 + 1
+        ss_size = size*SUPERSAMPLE
+        big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+        big.fill((*rgb, 0))
+        c, r = ss_size/2, MARKER_RADIUS*SUPERSAMPLE
+        pygame.draw.polygon(big, rgb, [(c, c - r), (c + r, c), (c, c + r), (c - r, c)])
         return pygame.transform.smoothscale(big, (size, size))
 
     def draw_line(self, surface: pygame.Surface, rgb: tuple[int, int, int], start: tuple[float, float], end: tuple[float, float]):

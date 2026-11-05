@@ -6,8 +6,8 @@ import pygame
 
 from gobts.sgf.node import SGFNode
 
-SPACING = 36
-PAD = 24
+SPACING = 28
+PAD = 20
 
 @dataclass
 class TreeLayout:

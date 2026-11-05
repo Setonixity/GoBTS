@@ -17,7 +17,7 @@ class UIRenderer:
         mouse = pygame.mouse.get_pos() if pygame.mouse.get_focused() else (-1, -1)
         hover = layout.title_at(mouse)
 
-        pygame.draw.rect(surface, (0, 0, 0), (0, 0, surface.get_width(), layout.height))
+        pygame.draw.rect(surface, (33,33,33), (0, 0, surface.get_width(), layout.height))
 
         for i, (menu, rect) in enumerate(zip(menubar.menus, layout.title_rects)):
             if i == menubar.open_index or i == hover:

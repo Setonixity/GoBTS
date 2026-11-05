@@ -33,3 +33,7 @@
 
 ## Changed
 - (core) moved play() to core/rules.py
+
+## [0.0.3] - 5-11-2026
+### Added
+- (client) a game tree viewer
