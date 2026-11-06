@@ -49,4 +49,5 @@
 - (sgf) sgf writer
 - (client) save game dialog box
 - (client) left-right traversal keybinds
-- (client) mouse go to in tree
+- (client) mouse click to node in tree
+- (client) scroll up-down traversal

@@ -73,6 +73,10 @@ class ClientApp:
                     else:
                         self.on_click(self.b_renderer.layout.to_point(*event.pos))
                     needs_redraw = True
+                elif event.type == pygame.MOUSEWHEEL:
+                    if self.t_renderer.layout.rect.collidepoint(pygame.mouse.get_pos()):
+                        self.on_scroll(event.y)
+                        needs_redraw = True
                 elif event.type == pygame.KEYDOWN:
                     self.on_key(event.key)
                     needs_redraw = True
@@ -116,6 +120,17 @@ class ClientApp:
             node = self.t_renderer.layout.row_neighbor(self.node, step)
             if node != None:
                 self.go_to(node)
+
+    def on_scroll(self, steps: int):
+        node = self.node
+        for _ in range(abs(steps)):
+            next_node = node.parent if steps > 0 else (node.children[0] if node.children else None)
+            if next_node == None:
+                break
+            node = next_node
+        if node is not self.node:
+            self.go_to(node)
+
 
     def go_to(self, node: SGFNode):
         board = converter.board_at(node)
