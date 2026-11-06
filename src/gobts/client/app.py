@@ -9,6 +9,7 @@ from gobts.core import *
 import gobts.sgf.converter as converter
 from gobts.sgf.node import SGFNode
 import gobts.sgf.parser as parser
+import gobts.sgf.writer as writer
 import pygame
 
 WINDOW_TITLE = "GO TO FUCKING SLEEP"
@@ -22,11 +23,7 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
-        self.root = SGFNode()
-        self.node = self.root
-        # node = list(parser.load("data/gobts/sgf/test_1.sgf")[0].main_line())[-1]
-        # self.board = converter.board_at(node)
-        self.color_to_play = Color.BLACK
+        self.new_game()
 
     def run(self):
         pygame.init()
@@ -39,7 +36,9 @@ class ClientApp:
         self.menubar = MenuBar([
             Menu("File", [
                 MenuItem("New Game", self.new_game),
-                MenuItem("Open Game", self.open_game)
+                MenuItem("Open Game", self.open_game),
+                MenuItem("Save Game", self.save_game),
+                MenuItem("Save Game As", lambda: self.save_game(ask_path=True))
             ]),
             Menu("Edit", [
                 MenuItem("Copy", lambda: print('TEST'))
@@ -96,8 +95,12 @@ class ClientApp:
     def on_click(self, point: Point|None):
         if point == None or not self.board.is_empty(point):
             return
-        play(self.board, point, self.color_to_play)
-        self.color_to_play = self.color_to_play.switch()
+        id, value = self.color_to_play.value, converter.format_point(point)
+        child = next((child for child in self.node.children if child.get(id) == [value]), None)
+        if child == None:
+            child = SGFNode({id: [value]}, parent=self.node)
+            self.node.children.append(child)
+        self.go_to(child)
 
     def on_key(self, key: int):
         if key == pygame.K_UP and self.node.parent != None:
@@ -127,11 +130,24 @@ class ClientApp:
         except:
             dialogs.show_error("Could not open file", f"{path}")
 
+    def save_game(self, ask_path: bool = False):
+        path = self.path
+        if ask_path or path == None:
+            path = dialogs.ask_save_path("Save Game")
+            if path == None:
+                return
+        try:
+            writer.save(self.root, path)
+            self.path = path
+        except OSError as error:
+            dialogs.show_error("Could not save file", f"{path}\n{error}")
+
     def new_game(self):
         self.board.clear()
         self.color_to_play = Color.BLACK
-        self.root = SGFNode()
+        self.root = SGFNode({"GM": ["1"], "FF": ["4"], "SZ": [str(self.size)]})
         self.node = self.root
+        self.path = None
         self.layout_size = None
 
 

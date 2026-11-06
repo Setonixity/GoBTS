@@ -15,6 +15,10 @@ def ask_open_path(title: str = "Open", filetypes=SGF_TYPES) -> str|None:
     path = run(lambda root: filedialog.askopenfilename(parent=root, title=title, filetypes=filetypes))
     return path if path else None
 
+def ask_save_path(title: str = "Save", filetypes=SGF_TYPES) -> str|None:
+    path = run(lambda root: filedialog.asksaveasfilename(parent=root, title=title, filetypes=filetypes, defaultextension=".sgf"))
+    return path if path else None
+
 def run(dialog_func: Callable[[tk.Tk], T]) -> T: # always destroy the root afterwards
     root = tk.Tk()
     root.withdraw()

@@ -24,7 +24,7 @@
 - (sgf) converter for parsed to go game
 - (client) new game
 - (client) open game from file
-- (client) file dialog box
+- (client) open file dialog box
 
 ## Fixed
 - (client) wrong move order
@@ -43,3 +43,8 @@
 ## Changed
 - (client) switched color changing marker for bg highlight
 - (client) root node marker.
+
+## [0.0.4] - 6-11-2026
+### Added
+- (sgf) sgf writer
+- (client) save game dialog box

@@ -59,3 +59,5 @@ def board_at(node: SGFNode) -> Board: # check FROM current node
         apply_node(board, step)
     return board
 
+def format_point(point: Point) -> str:
+    return COORDS_LETTERS[point.x] + COORDS_LETTERS[point.y]
