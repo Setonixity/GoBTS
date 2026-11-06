@@ -22,16 +22,13 @@ class TreeLayout:
     @classmethod
     def fit(cls, root: SGFNode, focus: SGFNode, rect: pygame.Rect) -> TreeLayout:
         positions = grid_positions(root)
-        # cols = max(col for col, _ in positions.values()) + 1
-        # rows = max(row for _, row in positions.values()) + 1
         focus_col, focus_row = positions[focus]
-        # scroll_x = scroll_offset((cols-1)*SPACING + 2*PAD, rect.width, PAD + focus_col*SPACING)
-        # scroll_y = PAD + focus_row*SPACING - rect.height/2
         
         start_y = rect.y + PAD
         margin = min(SCROLL_MARGIN, rect.height/2)
         top, bottom = rect.top + margin, rect.bottom - margin
         page = max(2, int((bottom - top) / SPACING) // 2 * 2) * SPACING
+
         focus_y = start_y + focus_row*SPACING
         if focus_y > bottom:
             start_y -= math.ceil((focus_y - bottom) / page) * page
@@ -57,6 +54,27 @@ class TreeLayout:
             round(self.start_x + (col*self.spacing)),
             round(self.start_y + (row*self.spacing))
         )
+
+    def to_node(self, px: float, py: float) -> SGFNode|None:
+        if not self.rect.collidepoint(px, py):
+            return None
+        col = math.floor((px - self.start_x) / self.spacing + 0.5)
+        row = math.floor((py - self.start_y) / self.spacing + 0.5)
+        for node, cell in self.positions.items():
+            if cell == (col, row):
+                return node
+        return None
+
+    def row_neighbor(self, node: SGFNode, step: int) -> SGFNode|None:
+        if node not in self.positions:
+            return None
+        _, row = self.positions[node]
+        nodes_in_row = (n for n, (_, r) in self.positions.items() if r == row)
+        row_nodes = sorted(nodes_in_row, key=lambda n: self.positions[n][0])
+        i = row_nodes.index(node) + step
+        if 0 <= i < len(row_nodes):
+            return row_nodes[i]
+        return None
 
 def grid_positions(root: SGFNode) -> dict[SGFNode, tuple[int, int]]:
     positions: dict[SGFNode, tuple[int, int]] = {}

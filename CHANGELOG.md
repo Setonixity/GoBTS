@@ -37,7 +37,7 @@
 ## [0.0.3] - 5-11-2026
 ### Added
 - (client) a game tree viewer
-- (client) traversal keybinds
+- (client) up-down traversal keybinds
 - (client) centered current node
 
 ## Changed
@@ -48,3 +48,5 @@
 ### Added
 - (sgf) sgf writer
 - (client) save game dialog box
+- (client) left-right traversal keybinds
+- (client) mouse go to in tree

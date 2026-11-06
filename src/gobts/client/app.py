@@ -32,7 +32,7 @@ class ClientApp:
         pygame.key.set_repeat(300, 50)
 
         self.layout_size = None
-        font = pygame.font.SysFont("ubuntu,segoeui,dejavusans,arial", 13)
+        font = pygame.font.SysFont("ubuntumono,segoeui,dejavusans,arial", 13)
         self.menubar = MenuBar([
             Menu("File", [
                 MenuItem("New Game", self.new_game),
@@ -67,7 +67,11 @@ class ClientApp:
                 elif event.type in REDRAW_EVENTS:
                     needs_redraw = True
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.on_click(self.b_renderer.layout.to_point(*event.pos))
+                    node = self.t_renderer.layout.to_node(*event.pos)
+                    if node != None:
+                        self.go_to(node)
+                    else:
+                        self.on_click(self.b_renderer.layout.to_point(*event.pos))
                     needs_redraw = True
                 elif event.type == pygame.KEYDOWN:
                     self.on_key(event.key)
@@ -107,6 +111,11 @@ class ClientApp:
             self.go_to(self.node.parent)
         elif key == pygame.K_DOWN and self.node.children:
             self.go_to(self.node.children[0])
+        elif key in (pygame.K_LEFT, pygame.K_RIGHT):
+            step = -1 if key == pygame.K_LEFT else 1
+            node = self.t_renderer.layout.row_neighbor(self.node, step)
+            if node != None:
+                self.go_to(node)
 
     def go_to(self, node: SGFNode):
         board = converter.board_at(node)

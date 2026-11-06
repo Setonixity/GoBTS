@@ -34,4 +34,4 @@ class UIRenderer:
 
     def _blit_text(self, surface: pygame.Surface, text, color: pygame.Color, **position):
         image = self.font.render(text, True, color)
-        surface.blit(image, image.get_rect(**position))
+        surface.blit(image, image.get_rect(height=self.font.get_height(), **position))
