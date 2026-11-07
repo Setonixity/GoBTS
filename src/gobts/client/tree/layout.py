@@ -6,10 +6,7 @@ import math
 import pygame
 
 from gobts.sgf.node import SGFNode
-
-SPACING = 28
-PAD = 20
-SCROLL_MARGIN = 4*SPACING
+from gobts.client.theme import TreeTheme
 
 @dataclass
 class TreeLayout:
@@ -20,32 +17,33 @@ class TreeLayout:
     spacing: float
 
     @classmethod
-    def fit(cls, root: SGFNode, focus: SGFNode, rect: pygame.Rect) -> TreeLayout:
+    def fit(cls, root: SGFNode, focus: SGFNode, rect: pygame.Rect, theme: TreeTheme) -> TreeLayout:
         positions = grid_positions(root)
         focus_col, focus_row = positions[focus]
+        spacing, pad = theme.spacing, theme.pad
         
-        start_y = rect.y + PAD
-        margin = min(SCROLL_MARGIN, rect.height/2)
+        start_y = rect.y + pad
+        margin = min(theme.scroll_margin*spacing, rect.height/2)
         top, bottom = rect.top + margin, rect.bottom - margin
-        page = max(2, int((bottom - top) / SPACING) // 2 * 2) * SPACING
+        page = max(2, int((bottom - top) / spacing) // 2 * 2) * spacing
 
-        focus_y = start_y + focus_row*SPACING
+        focus_y = start_y + focus_row*spacing
         if focus_y > bottom:
             start_y -= math.ceil((focus_y - bottom) / page) * page
         elif focus_y < top:
             start_y += math.ceil((top - focus_y) / page) * page
-        start_y = min(start_y, rect.y + PAD)
+        start_y = min(start_y, rect.y + pad)
 
-        visible = [focus_col] + [col for col, row in positions.values() if rect.top - SPACING/2 < start_y + row*SPACING < rect.bottom + SPACING/2]
+        visible = [focus_col] + [col for col, row in positions.values() if rect.top - spacing/2 < start_y + row*spacing < rect.bottom + spacing/2]
         first_col, last_col = min(visible), max(visible)
-        scroll_x = scroll_offset((last_col - first_col)*SPACING + 2*PAD, rect.width, PAD + (focus_col - first_col)*SPACING)
+        scroll_x = scroll_offset((last_col - first_col)*spacing + 2*pad, rect.width, pad + (focus_col - first_col)*spacing, pad)
 
         return cls(
             rect = rect,
             positions = positions,
-            start_x = rect.x + PAD - first_col*SPACING - scroll_x,
+            start_x = rect.x + pad - first_col*spacing - scroll_x,
             start_y = start_y,
-            spacing = SPACING
+            spacing = spacing
         )
 
     def to_pixel(self, node: SGFNode) -> tuple[float, float]:
@@ -99,7 +97,7 @@ def grid_positions(root: SGFNode) -> dict[SGFNode, tuple[int, int]]:
             to_place.append((child, col, end_row))
     return positions
 
-def scroll_offset(content: float, view: float, focus: float) -> float:
+def scroll_offset(content: float, view: float, focus: float, pad: float) -> float:
     if content <= view: 
         return (content - view) / 2
-    return max(focus + PAD - view, 0)
+    return max(focus + pad - view, 0)

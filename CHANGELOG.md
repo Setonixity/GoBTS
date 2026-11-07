@@ -59,7 +59,8 @@
 
 ## [0.0.5] - 8-11-2026
 ### Added
-- (client) theme defualt values
+- (client) theme default values
 
 ### Changed
 - (client) decoupled board magic numbers
+- (client) decoupled tree magic numbers

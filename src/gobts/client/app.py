@@ -59,7 +59,7 @@ class ClientApp:
 
         board_layout, tree_layout = self.fit_layouts(WINDOW_SIZE)
         self.b_renderer = BoardRenderer(self.board, board_layout, theme.board)
-        self.t_renderer = TreeRenderer(tree_layout)
+        self.t_renderer = TreeRenderer(tree_layout, theme.tree)
 
         running = True
         needs_redraw = True
@@ -195,10 +195,11 @@ class ClientApp:
         if not (self.maximized or screen.get_flags() & pygame.FULLSCREEN):
             width, height = screen.get_size()
             full_board = height - self.menubar.layout.height
+            tree_w = self.theme.tree.width
             if self.show_tree:
-                new_width = max(width, min(width, full_board) + TREE_WIDTH)
+                new_width = max(width, min(width, full_board) + tree_w)
             else:
-                new_width = min(width, max(width - TREE_WIDTH, full_board))
+                new_width = min(width, max(width - tree_w, full_board))
             if new_width != width:
                 self.window.size = (max(new_width, 1), height)
         self.layout_size = None
@@ -206,9 +207,9 @@ class ClientApp:
     def fit_layouts(self, window_size: tuple[int, int]) -> tuple[BoardLayout, TreeLayout]:
         width, height = window_size
         bar_h = self.menubar.layout.height
-        tree_w = TREE_WIDTH if self.show_tree else 0
+        tree_w = self.theme.tree.width if self.show_tree else 0
         board_layout = BoardLayout.fit(self.size, width - tree_w, height - bar_h, self.theme.board, top=bar_h)
-        tree_layout = TreeLayout.fit(self.root, self.node, pygame.Rect(width - tree_w, bar_h, tree_w, height - bar_h))
+        tree_layout = TreeLayout.fit(self.root, self.node, pygame.Rect(width - tree_w, bar_h, tree_w, height - bar_h), self.theme.tree) 
         return board_layout, tree_layout
 
 ClientApp().run()
