@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from gobts.client.board import *
+from gobts.client.theme import Theme
 from gobts.client.tree.layout import TreeLayout
 from gobts.client.tree.renderer import TreeRenderer
 from gobts.client.ui import *
@@ -25,10 +26,12 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
+        self.theme = Theme()
         self.show_tree = True
         self.new_game()
 
     def run(self):
+        theme = self.theme
         pygame.init()
         pygame.display.set_mode(WINDOW_SIZE, pygame.RESIZABLE)
         self.window = Window.from_display_module()
@@ -55,7 +58,7 @@ class ClientApp:
         self.ui_renderer = UIRenderer(self.menubar, font)
 
         board_layout, tree_layout = self.fit_layouts(WINDOW_SIZE)
-        self.b_renderer = BoardRenderer(self.board, board_layout)
+        self.b_renderer = BoardRenderer(self.board, board_layout, theme.board)
         self.t_renderer = TreeRenderer(tree_layout)
 
         running = True
@@ -204,7 +207,7 @@ class ClientApp:
         width, height = window_size
         bar_h = self.menubar.layout.height
         tree_w = TREE_WIDTH if self.show_tree else 0
-        board_layout = BoardLayout.fit(self.size, width - tree_w, height - bar_h, top=bar_h)
+        board_layout = BoardLayout.fit(self.size, width - tree_w, height - bar_h, self.theme.board, top=bar_h)
         tree_layout = TreeLayout.fit(self.root, self.node, pygame.Rect(width - tree_w, bar_h, tree_w, height - bar_h))
         return board_layout, tree_layout
 

@@ -2,9 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 
+from gobts.client.theme import BoardTheme
 from gobts.core.board import *
-
-EDGE_CELL = 1.3
 
 @dataclass
 class BoardLayout:
@@ -13,18 +12,20 @@ class BoardLayout:
     start_y: float
     line_width: int
     spacing: float
+    stone_radius: int
 
     @classmethod
-    def fit(cls, size, width, height, top: float = 0) -> BoardLayout:
-        cells_across = (size - 1) + (2 * EDGE_CELL)
+    def fit(cls, size, width, height, theme: BoardTheme, top: float = 0) -> BoardLayout:
+        cells_across = (size - 1) + (2 * theme.edge_cells)
         spacing = max(1.0, (min(width, height) / cells_across))
         gridpx_across = (size - 1) * spacing
         return cls(
             size = size,
             start_x = (width - gridpx_across) / 2,
             start_y = top + (height - gridpx_across) / 2,
-            line_width = max(1, round(min(width, height) / 800)),
-            spacing = spacing
+            line_width = max(1, round(min(width, height) / theme.px_per_line)),
+            spacing = spacing,
+            stone_radius = int(spacing * theme.stone_radius)
         )
 
     def to_pixel(self, point: Point) -> tuple[float, float]:
@@ -39,6 +40,3 @@ class BoardLayout:
         if 0 <= x < self.size and 0 <= y < self.size:
             return Point(x, y)
         return None
-
-    def stone_radius(self) -> float:
-        return int(self.spacing * (0.5 - 0.03))

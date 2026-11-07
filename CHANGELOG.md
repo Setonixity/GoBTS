@@ -11,7 +11,7 @@
 - (client) mouse input and stone placement
 - (client) stone ghost previews
 
-## Fixed
+### Fixed
 - (client) jitter during window resizing
 - (client) inconsistent star point scaling
 
@@ -26,12 +26,12 @@
 - (client) open game from file
 - (client) open file dialog box
 
-## Fixed
+### Fixed
 - (client) wrong move order
 - (client) new game not resetting play color
 - (client) when loading sgf, layout size doesn't update
 
-## Changed
+### Changed
 - (core) moved play() to core/rules.py
 
 ## [0.0.3] - 5-11-2026
@@ -40,7 +40,7 @@
 - (client) up-down traversal keybinds
 - (client) centered current node
 
-## Changed
+### Changed
 - (client) switched color changing marker for bg highlight
 - (client) root node marker.
 
@@ -53,3 +53,13 @@
 - (client) scroll up-down traversal
 - (client) view and toggle to menubar
 - (client) game tree is togglable
+
+### Fixed
+- (Client) window resizing when enough horizontal space for tree
+
+## [0.0.5] - 8-11-2026
+### Added
+- (client) theme defualt values
+
+### Changed
+- (client) decoupled board magic numbers

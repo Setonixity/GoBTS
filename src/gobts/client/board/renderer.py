@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import pygame
 
-from gobts.client.board.layout import BoardLayout
-from gobts.core.board import *
+from gobts.client.board.layout import BoardLayout, Color, Point, Board
+from gobts.client.theme import BoardTheme
 
 SUPERSAMPLE = 8
 
 class BoardRenderer:
 
-    def __init__(self, board: Board, layout: BoardLayout):
+    def __init__(self, board: Board, layout: BoardLayout, theme: BoardTheme):
         self.board = board
         self.layout = layout
+        self.theme = theme
         self._sprite_cache: dict[tuple[Color, float], pygame.Surface] = {}
         self._cached_radius: float|None = None
 
@@ -20,30 +21,31 @@ class BoardRenderer:
 
     def draw(self, surface: pygame.Surface, ghost_preview: tuple[Point, Color]|None = None):
         layout = self.layout
+        theme = self.theme
         size = layout.size
 
-        surface.fill((222, 184, 106))
+        surface.fill(theme.background_rgb)
         line_width = layout.line_width
 
         # grid
         for i in range(size):
-            pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(i, 0)), layout.to_pixel(Point(i, size-1)), line_width)
-            pygame.draw.line(surface, (0, 0, 0), layout.to_pixel(Point(0, i)), layout.to_pixel(Point(size-1, i)), line_width)
+            pygame.draw.line(surface, theme.line_rgb, layout.to_pixel(Point(i, 0)), layout.to_pixel(Point(i, size-1)), line_width)
+            pygame.draw.line(surface, theme.line_rgb, layout.to_pixel(Point(0, i)), layout.to_pixel(Point(size-1, i)), line_width)
         # star points
-        star_radius = max(2, round(layout.spacing * 0.1))
+        star_radius = max(theme.min_star_radius, round(layout.spacing * theme.star_radius))
         star_sprite = self.make_star_sprite(star_radius)
         for point in star_points(layout.size):
             x, y = layout.to_pixel(point)
             surface.blit(star_sprite, (x - star_radius, y - star_radius))
 
-        radius = layout.stone_radius()
+        radius = layout.stone_radius
         for point, color in self.board.stones:
             x, y = layout.to_pixel(point)
             surface.blit(self.make_stone_sprite(color, radius), (x - radius, y - radius))
         if ghost_preview != None and self.board.is_empty(ghost_preview[0]):
             x, y = layout.to_pixel(ghost_preview[0])
             sprite = self.make_stone_sprite(ghost_preview[1], radius).copy()
-            sprite.set_alpha(100)
+            sprite.set_alpha(theme.ghost_alpha)
             surface.blit(sprite, (x - radius, y - radius))
 
     def draw_ascii(self):
@@ -98,15 +100,16 @@ class BoardRenderer:
             self._sprite_cache.clear()
             self._cached_radius = radius
 
-        edge_color = (0,0,0)
-        fill_color = (0,0,0) if color == Color.BLACK else (255, 255, 255)
+        theme = self.theme
+        edge_color = theme.stone_edge_rgb
+        fill_color = theme.black_rgb if color == Color.BLACK else theme.white_rgb
         sprite = self._sprite_cache.get((color, radius))
         if sprite == None:
             size = radius*2 + 1
             ss_size = size*SUPERSAMPLE
             big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
             center = (ss_size/2, ss_size/2)
-            edge = max(1, radius*0.05) * SUPERSAMPLE
+            edge = max(1, radius*theme.stone_edge) * SUPERSAMPLE
             pygame.draw.circle(big, edge_color, center, radius*SUPERSAMPLE)
             pygame.draw.circle(big, fill_color, center, radius*SUPERSAMPLE - edge)
             sprite = pygame.transform.smoothscale(big, (size, size))
@@ -118,7 +121,7 @@ class BoardRenderer:
             self._star_cache.clear()
             self._cached_star_radius = radius
 
-        fill_color = (0,0,0)
+        fill_color = self.theme.star_rgb
         sprite = self._star_cache.get(radius)
         if sprite == None:
             size = radius*2 + 1
