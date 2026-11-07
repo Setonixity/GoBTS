@@ -5,6 +5,8 @@ import pygame
 from gobts.client.ui.layout import PAD_X
 from gobts.client.ui.menubar import MenuBar
 
+CHECK_MARK = "✓"
+
 class UIRenderer:
 
     def __init__(self, menubar: MenuBar, font: pygame.font.Font):
@@ -30,7 +32,9 @@ class UIRenderer:
             for item, rect in zip(menubar.menus[open_i].items, layout.item_rects[open_i]):
                 if rect.collidepoint(mouse):
                     pygame.draw.rect(surface, (100, 100, 100), rect)
-                self._blit_text(surface, item.label, (255, 255, 255), midleft=(rect.x + PAD_X, rect.centery - 2))
+                if item.checked != None and item.checked():
+                    self._blit_text(surface, CHECK_MARK, (255, 255, 255), midleft=(rect.x + PAD_X, rect.centery - 1))
+                self._blit_text(surface, item.label, (255, 255, 255), midleft=(rect.x + layout.label_x[open_i], rect.centery - 2))
 
     def _blit_text(self, surface: pygame.Surface, text, color: pygame.Color, **position):
         image = self.font.render(text, True, color)

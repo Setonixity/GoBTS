@@ -10,7 +10,9 @@ import gobts.sgf.converter as converter
 from gobts.sgf.node import SGFNode
 import gobts.sgf.parser as parser
 import gobts.sgf.writer as writer
+
 import pygame
+from pygame._sdl2.video import Window
 
 WINDOW_TITLE = "GO TO FUCKING SLEEP"
 TREE_WIDTH = 240
@@ -23,16 +25,19 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
+        self.show_tree = True
         self.new_game()
 
     def run(self):
         pygame.init()
         pygame.display.set_mode(WINDOW_SIZE, pygame.RESIZABLE)
+        self.window = Window.from_display_module()
         pygame.display.set_caption(WINDOW_TITLE)
         pygame.key.set_repeat(300, 50)
 
         self.layout_size = None
-        font = pygame.font.SysFont("ubuntumono,segoeui,dejavusans,arial", 13)
+        self.maximized = False
+        font = pygame.font.SysFont("dejavusans,segoeui,ubuntumono,arial", 13)
         self.menubar = MenuBar([
             Menu("File", [
                 MenuItem("New Game", self.new_game),
@@ -42,13 +47,16 @@ class ClientApp:
             ]),
             Menu("Edit", [
                 MenuItem("Copy", lambda: print('TEST'))
+            ]),
+            Menu("View", [
+                MenuItem("Toggle Game Tree", self.toggle_tree, checked=lambda: self.show_tree)
             ])
         ], font)
         self.ui_renderer = UIRenderer(self.menubar, font)
-        bar_h = self.menubar.layout.height
 
-        self.b_renderer = BoardRenderer(self.board, BoardLayout.fit(self.size, WINDOW_SIZE[0] - TREE_WIDTH, WINDOW_SIZE[1] - bar_h, top=bar_h))
-        self.t_renderer = TreeRenderer(TreeLayout.fit(self.root, self.node, pygame.Rect(WINDOW_SIZE[0] - TREE_WIDTH, bar_h, TREE_WIDTH, WINDOW_SIZE[1] - bar_h)))
+        board_layout, tree_layout = self.fit_layouts(WINDOW_SIZE)
+        self.b_renderer = BoardRenderer(self.board, board_layout)
+        self.t_renderer = TreeRenderer(tree_layout)
 
         running = True
         needs_redraw = True
@@ -64,6 +72,10 @@ class ClientApp:
                     continue
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.WINDOWMAXIMIZED:
+                    self.maximized = True
+                elif event.type == pygame.WINDOWRESTORED:
+                    self.maximized = False
                 elif event.type in REDRAW_EVENTS:
                     needs_redraw = True
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -85,8 +97,7 @@ class ClientApp:
                 screen = pygame.display.get_surface()
                 if screen.get_size() != self.layout_size:
                     self.layout_size = screen.get_size()
-                    self.b_renderer.layout = BoardLayout.fit(self.size, self.layout_size[0] - TREE_WIDTH, self.layout_size[1] - bar_h, top=bar_h)
-                    self.t_renderer.layout = TreeLayout.fit(self.root, self.node, pygame.Rect(self.layout_size[0] - TREE_WIDTH, bar_h, TREE_WIDTH, self.layout_size[1] - bar_h))
+                    self.b_renderer.layout, self.t_renderer.layout = self.fit_layouts(self.layout_size)
                 ghost_preview = None
                 if pygame.mouse.get_focused():
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
@@ -174,5 +185,21 @@ class ClientApp:
         self.path = None
         self.layout_size = None
 
+    def toggle_tree(self):
+        self.show_tree = not self.show_tree
+        screen = pygame.display.get_surface()
+        if not (self.maximized or screen.get_flags() & pygame.FULLSCREEN):
+            width, height = screen.get_size()
+            width += TREE_WIDTH if self.show_tree else -TREE_WIDTH
+            self.window.size = (max(width, 1), height)
+        self.layout_size = None
+
+    def fit_layouts(self, window_size: tuple[int, int]) -> tuple[BoardLayout, TreeLayout]:
+        width, height = window_size
+        bar_h = self.menubar.layout.height
+        tree_w = TREE_WIDTH if self.show_tree else 0
+        board_layout = BoardLayout.fit(self.size, width - tree_w, height - bar_h, top=bar_h)
+        tree_layout = TreeLayout.fit(self.root, self.node, pygame.Rect(width - tree_w, bar_h, tree_w, height - bar_h))
+        return board_layout, tree_layout
 
 ClientApp().run()

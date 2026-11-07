@@ -51,3 +51,5 @@
 - (client) left-right traversal keybinds
 - (client) mouse click to node in tree
 - (client) scroll up-down traversal
+- (client) view and toggle to menubar
+- (client) game tree is togglable

@@ -7,6 +7,7 @@ from typing import Callable
 class MenuItem:
     label: str
     action: Callable[[], None]
+    checked: Callable[[], bool]|None = None
 
 @dataclass
 class Menu:
