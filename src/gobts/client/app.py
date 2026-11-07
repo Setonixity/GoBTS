@@ -104,7 +104,8 @@ class ClientApp:
                     if point != None:
                         ghost_preview = (point, self.color_to_play)
                 self.b_renderer.draw(screen, ghost_preview)
-                self.t_renderer.draw(screen, self.node)
+                if self.show_tree:
+                    self.t_renderer.draw(screen, self.node)
                 self.ui_renderer.draw(screen)
                 pygame.display.flip()
                 needs_redraw = False
@@ -190,8 +191,13 @@ class ClientApp:
         screen = pygame.display.get_surface()
         if not (self.maximized or screen.get_flags() & pygame.FULLSCREEN):
             width, height = screen.get_size()
-            width += TREE_WIDTH if self.show_tree else -TREE_WIDTH
-            self.window.size = (max(width, 1), height)
+            full_board = height - self.menubar.layout.height
+            if self.show_tree:
+                new_width = max(width, min(width, full_board) + TREE_WIDTH)
+            else:
+                new_width = min(width, max(width - TREE_WIDTH, full_board))
+            if new_width != width:
+                self.window.size = (max(new_width, 1), height)
         self.layout_size = None
 
     def fit_layouts(self, window_size: tuple[int, int]) -> tuple[BoardLayout, TreeLayout]:
