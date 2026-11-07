@@ -4,12 +4,7 @@ from dataclasses import dataclass
 import pygame
 
 from gobts.client.ui.menu import Menu
-
-BAR_HEIGHT = 22
-PAD_X = 8
-MIN_DROPDOWN_WIDTH = 180
-ITEM_HEIGHT = 22
-CHECK_WIDTH = 16
+from gobts.client.theme import MenuTheme
 
 @dataclass
 class MenuBarLayout:
@@ -20,28 +15,28 @@ class MenuBarLayout:
     label_x: list[int]
 
     @classmethod
-    def fit(cls, menus: list[Menu], font: pygame.font.Font) -> MenuBarLayout:
+    def fit(cls, menus: list[Menu], font: pygame.font.Font, theme: MenuTheme) -> MenuBarLayout:
         t_rects, d_rects, i_rects, label_xs = [], [], [], []
         t_x = 0
         for menu in menus:
-            t_width = font.size(menu.label)[0] + 2*PAD_X 
-            title = pygame.Rect(t_x , 0, t_width, BAR_HEIGHT)
+            t_width = font.size(menu.label)[0] + 2*theme.pad_x
+            title = pygame.Rect(t_x , 0, t_width, theme.bar_height)
             t_x += t_width
 
             has_checks = any(item.checked != None for item in menu.items)
 
-            label_x = PAD_X + (CHECK_WIDTH if has_checks else 0)
-            i_widths = [font.size(item.label)[0] + 2*PAD_X for item in menu.items]
-            d_width = max([MIN_DROPDOWN_WIDTH] + i_widths)
-            dropdown = pygame.Rect(title.x, BAR_HEIGHT - 1, d_width, len(menu.items) * ITEM_HEIGHT)
+            label_x = theme.pad_x + (theme.check_width if has_checks else 0)
+            i_widths = [font.size(item.label)[0] + 2*theme.pad_x for item in menu.items]
+            d_width = max([theme.min_dropdown_width] + i_widths)
+            dropdown = pygame.Rect(title.x, theme.bar_height - 1, d_width, len(menu.items) * theme.item_height)
 
-            items = [pygame.Rect(dropdown.x, dropdown.y + i*ITEM_HEIGHT, dropdown.width, ITEM_HEIGHT) for i in range(len(menu.items))]
+            items = [pygame.Rect(dropdown.x, dropdown.y + i*theme.item_height, dropdown.width, theme.item_height) for i in range(len(menu.items))]
 
             t_rects.append(title)
             d_rects.append(dropdown)
             i_rects.append(items)
             label_xs.append(label_x)
-        return cls(BAR_HEIGHT, t_rects, d_rects, i_rects, label_xs)
+        return cls(theme.bar_height, t_rects, d_rects, i_rects, label_xs)
 
     def title_at(self, pos: tuple[float, float]) -> int|None:
         for i, rect in enumerate(self.title_rects):

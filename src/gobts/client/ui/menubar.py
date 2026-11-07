@@ -4,15 +4,16 @@ import pygame
 
 from gobts.client.ui.layout import MenuBarLayout
 from gobts.client.ui.menu import Menu
+from gobts.client.theme import MenuTheme
 
 MENU_ACTION = pygame.event.custom_type()
 
 class MenuBar:
 
-    def __init__(self, menus: list[Menu], font: pygame.font.Font):
+    def __init__(self, menus: list[Menu], font: pygame.font.Font, theme: MenuTheme):
         self.menus = menus
         self.open_index: int|None = None
-        self.layout = MenuBarLayout.fit(menus, font)
+        self.layout = MenuBarLayout.fit(menus, font, theme)
 
     def handle_event(self, event: pygame.event.Event):
         if event.type == MENU_ACTION:

@@ -40,7 +40,7 @@ class ClientApp:
 
         self.layout_size = None
         self.maximized = False
-        font = pygame.font.SysFont("dejavusans,segoeui,ubuntumono,arial", 13)
+        font = pygame.font.SysFont(theme.menu.font, theme.menu.font_size)
         self.menubar = MenuBar([
             Menu("File", [
                 MenuItem("New Game", self.new_game),
@@ -54,8 +54,8 @@ class ClientApp:
             Menu("View", [
                 MenuItem("Toggle Game Tree", self.toggle_tree, checked=lambda: self.show_tree)
             ])
-        ], font)
-        self.ui_renderer = UIRenderer(self.menubar, font)
+        ], font, theme.menu)
+        self.ui_renderer = UIRenderer(self.menubar, font, theme.menu)
 
         board_layout, tree_layout = self.fit_layouts(WINDOW_SIZE)
         self.b_renderer = BoardRenderer(self.board, board_layout, theme.board)

@@ -64,3 +64,5 @@
 ### Changed
 - (client) decoupled board magic numbers
 - (client) decoupled tree magic numbers
+- (client) decoupled ui magic numbers
+- (client) default menu sizes

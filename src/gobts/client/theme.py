@@ -47,8 +47,27 @@ class TreeTheme:
     highlight_radius: int = 13
     highlight_corner: int = 5
     
+@dataclass
+class MenuTheme:
+    bar_rgb: RGB = (33, 33, 33)
+    dropdown_rgb: RGB = (60, 60, 60)
+    hover_rgb: RGB = (100, 100, 100) # also title of opened menu
+    text_rgb: RGB = (255, 255, 255)
+
+    font: str = "dejavusans,segoeui,ubuntumono,arial" 
+    font_size: int = 13
+    text_nudge: int = 0 # moves labels up/down to look centered
+    check_nudge: int = -1
+    check_mark: str = "✓"
+
+    bar_height: int = 24
+    item_height: int = 26
+    pad_x: int = 8
+    check_width: int = 16 # room for check mark
+    min_dropdown_width: int = 180
 
 @dataclass
 class Theme:
     board: BoardTheme = field(default_factory=BoardTheme)
     tree: TreeTheme = field(default_factory=TreeTheme)
+    menu: MenuTheme = field(default_factory=MenuTheme)
