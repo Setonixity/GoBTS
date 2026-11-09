@@ -15,6 +15,8 @@ def board_size(root: SGFNode) -> int:
     return size
 
 def apply_node(board: Board, node:SGFNode) -> None:
+    if any(id in node for id in SETUP):
+        board.ko = None
     for id, color in SETUP.items():
         for point in parse_points(node.get(id), board.size):
             board.set(point, color)
@@ -23,6 +25,8 @@ def apply_node(board: Board, node:SGFNode) -> None:
             point = parse_point(node.get(id)[0], board.size)
             if point != None:
                 play(board, point, color)
+            else: # pass
+                board.ko = None
 
 def parse_point(value: str, size: int) -> Point|None:
     value = value.strip()
