@@ -67,3 +67,4 @@
 - (client) decoupled tree magic numbers
 - (client) decoupled ui magic numbers
 - (client) default menu sizes
+- (client) built-in default font and icons

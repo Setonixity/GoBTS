@@ -40,7 +40,7 @@ class ClientApp:
 
         self.layout_size = None
         self.maximized = False
-        font = pygame.font.SysFont(theme.menu.font, theme.menu.font_size)
+        font = pygame.font.Font(theme.menu.font, theme.menu.font_size)
         self.menubar = MenuBar([
             Menu("File", [
                 MenuItem("New Game", self.new_game),

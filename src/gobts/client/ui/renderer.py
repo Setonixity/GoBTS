@@ -14,6 +14,7 @@ class UIRenderer:
         self.font = font
         self.theme = theme
         self._dropdown_cache: dict[tuple[int, int], pygame.Surface] = {}
+        self.check = self.make_check_sprite()
 
     def draw(self, surface: pygame.Surface):
         menubar = self.menubar
@@ -38,7 +39,7 @@ class UIRenderer:
                 if rect.collidepoint(mouse):
                     pygame.draw.rect(surface, theme.hover_rgb, rect)
                 if item.checked != None and item.checked():
-                    self.blit_text(surface, theme.check_mark, theme.text_rgb, midleft=(rect.x + theme.pad_x, rect.centery + theme.check_nudge))
+                    surface.blit(self.check, self.check.get_rect(midleft=(rect.x + theme.pad_x, rect.centery + theme.check_nudge)))
                 self.blit_text(surface, item.label, theme.text_rgb, midleft=(rect.x + layout.label_x[open_i], rect.centery + theme.text_nudge))
 
     def make_dropdown_sprite(self, size: tuple[int, int]) -> pygame.Surface:
@@ -51,6 +52,14 @@ class UIRenderer:
             pygame.draw.rect(big, theme.dropdown_rgb, big.get_rect(), border_radius=theme.dropdown_corner*SUPERSAMPLE)
             sprite = pygame.transform.smoothscale(big, size)
             self._dropdown_cache[size] = sprite
+        return sprite
+
+    def make_check_sprite(self) -> pygame.Surface:
+        theme = self.theme
+        size = (theme.check_size, theme.check_size)
+        sprite = pygame.image.load_sized_svg(theme.check_icon, size)
+        sprite.fill((0,0,0), special_flags=pygame.BLEND_RGB_MULT)
+        sprite.fill(theme.text_rgb, special_flags=pygame.BLEND_RGB_ADD)
         return sprite
 
     def blit_text(self, surface: pygame.Surface, text, color: pygame.Color, **position):

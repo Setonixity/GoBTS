@@ -1,7 +1,12 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
+from pathlib import Path
 
 RGB = tuple[int, int, int]
+DATA_DIR = Path(__file__).parents[3] / "data" / "gobts" # from src/gobts/client
+FONTS_DIR =  DATA_DIR / "fonts"
+IMAGES_DIR = DATA_DIR / "images"
+
 
 @dataclass
 class BoardTheme:
@@ -54,16 +59,17 @@ class MenuTheme:
     hover_rgb: RGB = (100, 100, 100) # also title of opened menu
     text_rgb: RGB = (255, 255, 255)
 
-    font: str = "dejavusans,segoeui,ubuntumono,arial" 
+    font: str|Path = FONTS_DIR / "Ubuntu-Regular.ttf"
     font_size: int = 13
-    text_nudge: int = 0 # moves labels up/down to look centered
-    check_nudge: int = -1
-    check_mark: str = "✓"
+    text_nudge: int = -1 # moves labels up/down to look centered
+    check_nudge: int = 0
+    check_icon: str|Path = IMAGES_DIR / "tick.svg"
+    check_size: int = 12
+    check_width: int = 18 # room for check mark
 
     bar_height: int = 24
     item_height: int = 26
-    pad_x: int = 8
-    check_width: int = 16 # room for check mark
+    pad_x: int = 10
     min_dropdown_width: int = 180
 
     dropdown_pad_y: int = 6
