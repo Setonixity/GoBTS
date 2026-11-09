@@ -34,9 +34,8 @@ class ClientApp:
     def run(self):
         theme = self.theme
         pygame.init()
-        pygame.display.set_mode(WINDOW_SIZE, pygame.RESIZABLE)
-        self.window = Window.from_display_module()
-        pygame.display.set_caption(WINDOW_TITLE)
+        self.window = Window(WINDOW_TITLE, WINDOW_SIZE, resizable=True)
+        screen = self.window.get_surface()
         pygame.key.set_repeat(300, 50)
 
         self.layout_size = None
@@ -98,7 +97,7 @@ class ClientApp:
                     needs_redraw = True
 
             if needs_redraw:
-                screen = pygame.display.get_surface()
+                screen = self.window.get_surface()
                 if screen.get_size() != self.layout_size:
                     self.layout_size = screen.get_size()
                     self.b_renderer.layout, self.t_renderer.layout = self.fit_layouts(self.layout_size)
@@ -111,7 +110,7 @@ class ClientApp:
                 if self.show_tree:
                     self.t_renderer.draw(screen, self.node)
                 self.ui_renderer.draw(screen)
-                pygame.display.flip()
+                self.window.flip()
                 needs_redraw = False
             
         pygame.quit()

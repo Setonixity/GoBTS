@@ -72,3 +72,6 @@
 ## [0.0.6] - 10-11-2026
 ### Added
 - (core) ko and self-capture rule
+
+### Fixed
+- (client) using pygame depecrated methods in pygame-ce
