@@ -28,9 +28,10 @@ class MenuBarLayout:
             label_x = theme.pad_x + (theme.check_width if has_checks else 0)
             i_widths = [font.size(item.label)[0] + 2*theme.pad_x for item in menu.items]
             d_width = max([theme.min_dropdown_width] + i_widths)
-            dropdown = pygame.Rect(title.x, theme.bar_height - 1, d_width, len(menu.items) * theme.item_height)
+            dropdown = pygame.Rect(title.x, theme.bar_height - 1, d_width, len(menu.items) * theme.item_height + 2*theme.dropdown_pad_y)
 
-            items = [pygame.Rect(dropdown.x, dropdown.y + i*theme.item_height, dropdown.width, theme.item_height) for i in range(len(menu.items))]
+            items_y = dropdown.y + theme.dropdown_pad_y
+            items = [pygame.Rect(dropdown.x, items_y + i*theme.item_height, dropdown.width, theme.item_height) for i in range(len(menu.items))]
 
             t_rects.append(title)
             d_rects.append(dropdown)

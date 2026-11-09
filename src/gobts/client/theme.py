@@ -66,6 +66,9 @@ class MenuTheme:
     check_width: int = 16 # room for check mark
     min_dropdown_width: int = 180
 
+    dropdown_pad_y: int = 6
+    dropdown_corner: int = 8
+
 @dataclass
 class Theme:
     board: BoardTheme = field(default_factory=BoardTheme)

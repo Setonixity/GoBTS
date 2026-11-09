@@ -31,7 +31,7 @@ class MenuBar:
             self.open_index = None if title == self.open_index else title
             return True
         if self.open_index != None:
-            if self.layout.item_at(self.open_index, pos) == None:
+            if not self.layout.dropdown_rects[self.open_index].collidepoint(pos):
                 self.open_index = None
             return True
         return pos[1] < self.layout.height

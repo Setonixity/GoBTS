@@ -60,6 +60,7 @@
 ## [0.0.5] - 8-11-2026
 ### Added
 - (client) theme default values
+- (client) rounded dropbox 
 
 ### Changed
 - (client) decoupled board magic numbers
