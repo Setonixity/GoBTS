@@ -4,8 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gobts"
-version = "0.0.3"
+version = "0.0.5"
 requires-python = ">=3.10"
+dependencies = [
+    "pygame-ce>=2.5",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
