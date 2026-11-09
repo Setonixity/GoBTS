@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from gobts.core.board import Board, Color, Point
+from gobts.core.board import Board, Color, Marker, Point
 from gobts.core.rules import play
 from gobts.sgf.node import SGFNode
 
@@ -65,3 +65,22 @@ def board_at(node: SGFNode) -> Board: # check FROM current node
 
 def format_point(point: Point) -> str:
     return COORDS_LETTERS[point.x] + COORDS_LETTERS[point.y]
+
+def markers_at(node: SGFNode, size: int) -> dict[Point, Marker]: 
+    markers: dict[Point, Marker] = {}
+    for marker in Marker:
+        for point in parse_points(node.get(marker.value), size):
+            if 0 <= point.x < size and 0 <= point.y < size:
+                markers[point] = marker
+    return markers
+
+def set_marker(node: SGFNode, point: Point, marker: Marker|None, size: int) -> None:
+    for m in Marker:
+        points = parse_points(node.get(m.value), size)
+        if (point in points) == (m == marker):
+            continue
+        points = [p for p in points if p != point] + ([point] if m == marker else [])
+        if points:
+            node.properties[m.value] = [format_point(p) for p in points]
+        else:
+            node.properties.pop(m.value, None)

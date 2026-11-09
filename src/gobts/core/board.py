@@ -10,6 +10,12 @@ class Color(Enum):
     def switch(self):
         return Color.BLACK if self == Color.WHITE else Color.WHITE
 
+class Marker(Enum):
+    TRIANGLE = 'TR'
+    CROSS = 'MA'
+    CIRCLE = 'CR'
+    SQUARE = 'SQ'
+
 @dataclass(frozen=True)
 class Point: # starts from (0, 0) which is 1-1 in go
     x: int 

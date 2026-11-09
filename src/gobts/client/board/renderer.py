@@ -3,7 +3,8 @@ from __future__ import annotations
 import pygame
 
 from gobts.client.board.layout import BoardLayout, Color, Point, Board
-from gobts.client.theme import BoardTheme
+from gobts.client.theme import BoardTheme, RGB
+from gobts.core.board import Marker
 
 SUPERSAMPLE = 8
 
@@ -19,7 +20,10 @@ class BoardRenderer:
         self._star_cache: dict[float, pygame.Surface] = {}
         self._cached_star_radius: float|None = None 
 
-    def draw(self, surface: pygame.Surface, ghost_preview: tuple[Point, Color]|None = None):
+        self._marker_cache: dict[tuple[Marker, RGB], pygame.Surface] = {}
+        self._cached_marker_radius: float|None = None
+
+    def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], ghost_preview: tuple[Point, Color]|None = None):
         layout = self.layout
         theme = self.theme
         size = layout.size
@@ -42,6 +46,13 @@ class BoardRenderer:
         for point, color in self.board.stones:
             x, y = layout.to_pixel(point)
             surface.blit(self.make_stone_sprite(color, radius), (x - radius, y - radius))
+        for point, marker in markers.items():
+            x, y = layout.to_pixel(point)
+            stone = self.board.get(point)
+            if stone == None:
+                pygame.draw.circle(surface, theme.background_rgb, (x, y), radius*theme.marker_clear)
+            rgb = theme.marker_on_black_rgb if stone == Color.BLACK else theme.marker_rgb
+            surface.blit(self.make_marker_sprite(marker, rgb, radius), (x - radius, y - radius))
         if ghost_preview != None and self.board.is_empty(ghost_preview[0]):
             x, y = layout.to_pixel(ghost_preview[0])
             sprite = self.make_stone_sprite(ghost_preview[1], radius).copy()
@@ -133,6 +144,37 @@ class BoardRenderer:
             self._star_cache[radius] = sprite
         return sprite
 
+    def make_marker_sprite(self, marker: Marker, rgb: RGB, radius: float) -> pygame.Surface:
+        if radius != self._cached_marker_radius:
+            self._marker_cache.clear()
+            self._cached_marker_radius = radius
+
+        theme = self.theme
+        sprite = self._marker_cache.get((marker, rgb))
+        if sprite == None:
+            size = radius*2 + 1
+            ss_size = size*SUPERSAMPLE
+            big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+            big.fill((*rgb, 0))
+            center = (ss_size/2, ss_size/2)
+            reach = radius*theme.marker_size*SUPERSAMPLE # outer edge 
+            width = round(max(1, radius*theme.marker_width) * SUPERSAMPLE)
+            if marker == Marker.CIRCLE:
+                pygame.draw.circle(big, rgb, center, reach, width)
+            elif marker == Marker.SQUARE:
+                half = reach*0.85 
+                pygame.draw.rect(big, rgb, (center[0] - half, center[1] - half, 2*half, 2*half), width)
+            elif marker == Marker.TRIANGLE: 
+                pygame.draw.polygon(big, rgb, triangle_points(center, reach*1.2))
+                pygame.draw.polygon(big, (*rgb, 0), triangle_points(center, reach*1.2 - 2*width))
+            elif marker == Marker.CROSS:
+                arm = reach*0.75
+                pygame.draw.line(big, rgb, (center[0] - arm, center[1] - arm), (center[0] + arm, center[1] + arm), width)
+                pygame.draw.line(big, rgb, (center[0] - arm, center[1] + arm), (center[0] + arm, center[1] - arm), width)
+            sprite = pygame.transform.smoothscale(big, (size, size))
+            self._marker_cache[(marker, rgb)] = sprite
+        return sprite
+
 
 def star_points(size: int = 19) -> list[Point]:
     """
@@ -163,6 +205,11 @@ def star_points(size: int = 19) -> list[Point]:
     if size % 2 == 1 and size > 1: # tengen
         _star_points.append(Point(size // 2, size // 2))
     return _star_points
+
+def triangle_points(center: tuple[float, float], radius: float) -> list[tuple[float, float]]: 
+    x, y = center
+    half_base = radius * 3**0.5 / 2
+    return [(x, y - radius), (x + half_base, y + radius/2), (x - half_base, y + radius/2)]
 
 # board = Board(19)
 # board.set(Point(0,0), Color.BLACK)

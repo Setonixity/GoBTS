@@ -28,6 +28,13 @@ class BoardTheme:
     stone_radius: float = 0.47 # of a cell
     stone_edge: float = 0.05 # of the stone radius. min = 1px
 
+    marker_rgb: RGB = (0, 0, 0)
+    marker_on_black_rgb: RGB = (255, 255, 255)
+    # of stone radius
+    marker_size: float = 0.5 
+    marker_width: float = 0.12 # min = 1px
+    marker_clear: float = 0.75
+
 @dataclass
 class PanelTheme:
     background_rgb: RGB = (33, 33, 33)
@@ -55,7 +62,26 @@ class TreeTheme:
     node_edge_width: int = 1
     highlight_radius: int = 13
     highlight_corner: int = 5
-    
+
+@dataclass
+class ToolbarTheme:
+    background_rgb: RGB = (45, 45, 45)
+    hover_rgb: RGB = (60, 60, 60)
+    selected_rgb: RGB = (75, 75, 75)
+    icon_rgb: RGB = (255, 255, 255)
+    node_rgb: RGB = (90, 90, 90) # blank node icon
+    node_edge_rgb: RGB = (150, 150, 150)
+
+    triangle_cross_icon: str|Path = IMAGES_DIR / "triangle-cross.svg"
+    circle_square_icon: str|Path = IMAGES_DIR / "circle_square.svg"
+
+    height: int = 36
+    button_size: int = 28
+    pad: int = 4 # between buttons and the bar's left edge
+    icon_size: int = 24
+    node_radius: int = 9
+    node_edge_width: int = 1
+
 @dataclass
 class MenuTheme:
     bar_rgb: RGB = (33, 33, 33)
@@ -84,4 +110,5 @@ class Theme:
     board: BoardTheme = field(default_factory=BoardTheme)
     panel: PanelTheme = field(default_factory=PanelTheme)
     tree: TreeTheme = field(default_factory=TreeTheme)
+    toolbar: ToolbarTheme = field(default_factory=ToolbarTheme)
     menu: MenuTheme = field(default_factory=MenuTheme)
