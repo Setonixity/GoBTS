@@ -29,6 +29,11 @@ class BoardTheme:
     stone_edge: float = 0.05 # of the stone radius. min = 1px
 
 @dataclass
+class PanelTheme:
+    background_rgb: RGB = (33, 33, 33)
+    width: int = 240
+
+@dataclass
 class TreeTheme:
     line_rgb: RGB = (255, 255, 255)
     faded_line_rgb: RGB = (100, 100, 100)
@@ -42,7 +47,6 @@ class TreeTheme:
 
     highlight_rgb: RGB = (70, 70, 70)
 
-    width: int = 240
     spacing: int = 28 
     pad: int = 20 # between outer nodes and panel edge
     scroll_margin: int = 4 # rows kept before it changes page
@@ -78,5 +82,6 @@ class MenuTheme:
 @dataclass
 class Theme:
     board: BoardTheme = field(default_factory=BoardTheme)
+    panel: PanelTheme = field(default_factory=PanelTheme)
     tree: TreeTheme = field(default_factory=TreeTheme)
     menu: MenuTheme = field(default_factory=MenuTheme)
