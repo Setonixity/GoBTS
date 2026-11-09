@@ -24,6 +24,7 @@ class Board():
     def __init__(self, size: int = 19):
         self.size = size
         self._grid: list[list[Color|None]] = [[None]*self.size for _ in range(self.size)]
+        self.ko: Point|None = None
 
     def get(self, point: Point) -> Color|None:
         return self._grid[point.y][point.x]

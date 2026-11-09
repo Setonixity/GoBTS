@@ -6,9 +6,10 @@ from gobts.client.tree.layout import TreeLayout
 from gobts.client.tree.renderer import TreeRenderer
 from gobts.client.ui import *
 from gobts.core import *
-
-import gobts.sgf.converter as converter
 from gobts.sgf.node import SGFNode
+
+import gobts.core.rules as rules
+import gobts.sgf.converter as converter
 import gobts.sgf.parser as parser
 import gobts.sgf.writer as writer
 
@@ -104,7 +105,7 @@ class ClientApp:
                 ghost_preview = None
                 if pygame.mouse.get_focused():
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
-                    if point != None:
+                    if point != None and rules.is_legal(self.board, point, self.color_to_play):
                         ghost_preview = (point, self.color_to_play)
                 self.b_renderer.draw(screen, ghost_preview)
                 if self.show_tree:
@@ -116,7 +117,7 @@ class ClientApp:
         pygame.quit()
 
     def on_click(self, point: Point|None):
-        if point == None or not self.board.is_empty(point):
+        if point == None or not rules.is_legal(self.board, point, self.color_to_play):
             return
         id, value = self.color_to_play.value, converter.format_point(point)
         child = next((child for child in self.node.children if child.get(id) == [value]), None)

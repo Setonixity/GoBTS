@@ -19,16 +19,40 @@ def group_and_liberties(board: Board, point: Point) -> tuple[set[Point], set[Poi
                 liberties.add(neighbor)
     return (group, liberties)
 
+def is_legal(board: Board, point: Point, color: Color) -> bool:
+    if not board.contains(point) or not board.is_empty(point) or point == board.ko:
+        return False
+    for neighbor in board.neighbors(point):
+        neighbor_color = board.get(neighbor)
+        if neighbor_color == None:
+            return True
+        _, liberties = group_and_liberties(board, neighbor)
+        if neighbor_color == color and liberties != {point}:
+            return True
+        if neighbor_color != color and liberties == {point}:
+            return True
+    return False
+
 def play(board:Board, point: Point, color: Color):
     board.set(point, color)
 
+    captured: set[Point] = set()
     for neighbor in board.neighbors(point):
         if board.get(neighbor) == color.switch():
             group, liberties = group_and_liberties(board, neighbor)
-            # print(group, liberties)
             if not liberties:
-                for captured in group:
-                    board.set(captured, None) 
+                for stone in group:
+                    board.set(stone, None) 
+                captured |= group
+
+    group, liberties = group_and_liberties(board, point)
+    if not liberties:
+        for stone in group:
+            board.set(stone, None)
+
+    is_ko = len(captured) == 1 and len(group) == 1 and len(liberties) == 1
+    board.ko = list(captured)[0] if is_ko else None
+    return captured
 
 # board = Board()
 # board.set(Point(3,3), Color.WHITE)

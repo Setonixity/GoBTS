@@ -68,3 +68,7 @@
 - (client) decoupled ui magic numbers
 - (client) default menu sizes
 - (client) built-in default font and icons
+
+## [0.0.6] - 10-11-2026
+### Added
+- (core) ko and self-capture rule
