@@ -78,3 +78,4 @@
 
 ### Fixed
 - (client) using pygame depecrated methods in pygame-ce
+- (client) sgf resolution

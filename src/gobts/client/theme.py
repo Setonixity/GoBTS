@@ -75,11 +75,11 @@ class ToolbarTheme:
     triangle_cross_icon: str|Path = IMAGES_DIR / "triangle-cross.svg"
     circle_square_icon: str|Path = IMAGES_DIR / "circle_square.svg"
 
-    height: int = 36
-    button_size: int = 28
-    pad: int = 4 # between buttons and the bar's left edge
-    icon_size: int = 24
-    node_radius: int = 9
+    height: int = 40
+    button_size: int = 36
+    pad: int = 4 
+    icon_size: int = 32
+    node_radius: int = 11
     node_edge_width: int = 1
 
 @dataclass

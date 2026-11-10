@@ -14,10 +14,12 @@ class ToolbarLayout:
     @classmethod
     def fit(cls, rect: pygame.Rect, theme: ToolbarTheme) -> ToolbarLayout:
         size, pad = theme.button_size, theme.pad
+        buttons_width = len(Tool)*size + (len(Tool) - 1)*pad
+        x = rect.centerx - buttons_width // 2
         y = rect.centery - size // 2
         return cls(
             rect = rect,
-            button_rects = {tool: pygame.Rect(rect.x + pad + i*(size + pad), y, size, size) for i, tool in enumerate(Tool)}
+            button_rects = {tool: pygame.Rect(x + i*(size + pad), y, size, size) for i, tool in enumerate(Tool)}
         )
 
     def to_tool(self, px: float, py: float) -> Tool|None:
