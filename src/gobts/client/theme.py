@@ -33,7 +33,10 @@ class BoardTheme:
     # of stone radius
     marker_size: float = 0.5 
     marker_width: float = 0.12 # min = 1px
-    marker_clear: float = 0.75
+    marker_clear: float = 0.75 
+ 
+    label_font: str|Path = FONTS_DIR / "Ubuntu-Regular.ttf"
+    label_size: float = 1.2
 
 @dataclass
 class PanelTheme:
@@ -69,11 +72,13 @@ class ToolbarTheme:
     hover_rgb: RGB = (60, 60, 60)
     selected_rgb: RGB = (75, 75, 75)
     icon_rgb: RGB = (255, 255, 255)
-    node_rgb: RGB = (90, 90, 90) # blank node icon
-    node_edge_rgb: RGB = (150, 150, 150)
+    # node_rgb: RGB = (90, 90, 90) # blank node icon
+    # node_edge_rgb: RGB = (150, 150, 150)
 
+    setup_icon: str|Path = IMAGES_DIR / "setup.svg"
     triangle_cross_icon: str|Path = IMAGES_DIR / "triangle-cross.svg"
     circle_square_icon: str|Path = IMAGES_DIR / "circle_square.svg"
+    letter_number_icon: str|Path = IMAGES_DIR / "letter-number.svg"
 
     height: int = 40
     button_size: int = 36

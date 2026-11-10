@@ -23,7 +23,11 @@ class BoardRenderer:
         self._marker_cache: dict[tuple[Marker, RGB], pygame.Surface] = {}
         self._cached_marker_radius: float|None = None
 
-    def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], ghost_preview: tuple[Point, Color]|None = None):
+        self._label_cache: dict[tuple[str, RGB], pygame.Surface] = {}
+        self._cached_label_radius: float|None = None
+        self._label_font: pygame.font.Font|None = None
+
+    def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], labels: dict[Point, str], ghost_preview: tuple[Point, Color]|None = None):
         layout = self.layout
         theme = self.theme
         size = layout.size
@@ -53,6 +57,14 @@ class BoardRenderer:
                 pygame.draw.circle(surface, theme.background_rgb, (x, y), radius*theme.marker_clear)
             rgb = theme.marker_on_black_rgb if stone == Color.BLACK else theme.marker_rgb
             surface.blit(self.make_marker_sprite(marker, rgb, radius), (x - radius, y - radius))
+        for point, text in labels.items():
+            x, y = layout.to_pixel(point)
+            stone = self.board.get(point)
+            if stone == None:
+                pygame.draw.circle(surface, theme.background_rgb, (x, y), radius*theme.marker_clear)
+            rgb = theme.marker_on_black_rgb if stone == Color.BLACK else theme.marker_rgb
+            sprite = self.make_label_sprite(text, rgb, radius)
+            surface.blit(sprite, sprite.get_rect(center=(x, y)))
         if ghost_preview != None and self.board.is_empty(ghost_preview[0]):
             x, y = layout.to_pixel(ghost_preview[0])
             sprite = self.make_stone_sprite(ghost_preview[1], radius).copy()
@@ -173,6 +185,19 @@ class BoardRenderer:
                 pygame.draw.line(big, rgb, (center[0] - arm, center[1] + arm), (center[0] + arm, center[1] - arm), width)
             sprite = pygame.transform.smoothscale(big, (size, size))
             self._marker_cache[(marker, rgb)] = sprite
+        return sprite
+
+    def make_label_sprite(self, text: str, rgb: RGB, radius: float) -> pygame.Surface:
+        if radius != self._cached_label_radius:
+            self._label_cache.clear()
+            self._cached_label_radius = radius
+            self._label_font = pygame.font.Font(self.theme.label_font, max(1, round(radius*self.theme.label_size)))
+ 
+        sprite = self._label_cache.get((text, rgb))
+        if sprite == None:
+            image = self._label_font.render(text, True, rgb)
+            sprite = image.subsurface(image.get_bounding_rect()).copy()
+            self._label_cache[(text, rgb)] = sprite
         return sprite
 
 

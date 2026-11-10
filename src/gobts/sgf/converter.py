@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from gobts.core.board import Board, Color, Marker, Point
+from gobts.core.board import Board, Color, Marker, Point, Label
 from gobts.core.rules import play
 from gobts.sgf.node import SGFNode
 
 COORDS_LETTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+LABEL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 SETUP = {"AB": Color.BLACK, "AW": Color.WHITE, "AE": None}
 MOVES = {"B": Color.BLACK, "W": Color.WHITE}
+LABEL = "LB"
 
 def board_size(root: SGFNode) -> int:
     value = root.get("SZ")[0] if root.get("SZ") else str(19)
@@ -93,12 +95,62 @@ def toggle_marker(node: SGFNode, point: Point, marker: Marker, size: int) -> Non
         del markers[point]
     else:
         markers[point] = marker
+        labels = labels_at(node, size)
+        if labels.pop(point, None) != None:
+            set_labels(node, labels)
     for kind in Marker:
         values = [format_point(p) for p, m in markers.items() if m == kind]
         if values:
             node.properties[kind.value] = values
         else:
             node.properties.pop(kind.value, None)
+
+def labels_at(node: SGFNode, size: int) -> dict[Point, str]:
+    labels: dict[Point, str] = {}
+    for value in node.get(LABEL):
+        coord, _, text = value.partition(":") # "dd:A"
+        point = parse_point(coord, size)
+        if point != None and 0 <= point.x < size and 0 <= point.y < size:
+            labels[point] = text
+    return labels
+
+def set_labels(node: SGFNode, labels: dict[Point, str]) -> None:
+    values = [format_point(p) + ":" + text for p, text in labels.items()]
+    if values:
+        node.properties[LABEL] = values
+    else:
+        node.properties.pop(LABEL, None)
+ 
+def label_kind(text: str) -> Label|None:
+    if len(text) == 1 and text in LABEL_LETTERS:
+        return Label.LETTER
+    if text.isascii() and text.isdigit():
+        return Label.NUMBER
+    return None
+
+def next_label(labels: dict[Point, str], label: Label) -> str|None:
+    taken = {text for text in labels.values() if label_kind(text) == label}
+    if label == Label.NUMBER:
+        number = len(taken) + 1
+        while str(number) in taken:
+            number += 1
+        return str(number)
+    return next((c for c in LABEL_LETTERS[len(taken):] if c not in taken), None)
+
+def toggle_label(node: SGFNode, point: Point, label: Label, size: int) -> None:
+    labels = labels_at(node, size)
+    if point in labels and label_kind(labels[point]) == label:
+        del labels[point]
+    else:
+        labels.pop(point, None) 
+        text = next_label(labels, label)
+        if text == None: 
+            return
+        labels[point] = text
+        marker = markers_at(node, size).get(point)
+        if marker != None: 
+            toggle_marker(node, point, marker, size)
+    set_labels(node, labels)
 
 def next_color(node: SGFNode) -> Color: 
     current: SGFNode|None = node

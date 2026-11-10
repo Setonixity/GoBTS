@@ -11,10 +11,14 @@ class Color(Enum):
         return Color.BLACK if self == Color.WHITE else Color.WHITE
 
 class Marker(Enum):
-    TRIANGLE = 'TR'
+    TRIANGLE = 'TR' 
     CROSS = 'MA'
     CIRCLE = 'CR'
     SQUARE = 'SQ'
+
+class Label(Enum): #LB
+    LETTER = 'A'
+    NUMBER = '1'
 
 @dataclass(frozen=True)
 class Point: # starts from (0, 0) which is 1-1 in go

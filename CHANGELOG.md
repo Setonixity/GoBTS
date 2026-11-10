@@ -74,7 +74,9 @@
 - (core) ko and self-capture rule
 - (client) side-panel to store other widgets along with game tree
 - (client) shape markers
-- (client) tool/shape selecting widget in side-panel
+- (client) shape and setup stones widget in side-panel
+- (client) label letter/number widget in side-panel
+- (sgf) converter now recognises LB, TR, MA, CR, SQ
 
 ### Fixed
 - (client) using pygame depecrated methods in pygame-ce

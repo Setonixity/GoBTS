@@ -11,7 +11,7 @@ from gobts.client.tree.layout import TreeLayout
 from gobts.client.tree.renderer import TreeRenderer
 from gobts.client.ui import *
 from gobts.core import *
-from gobts.core.board import Marker
+from gobts.core.board import Label, Marker
 from gobts.sgf.node import SGFNode
 
 import gobts.core.rules as rules
@@ -126,7 +126,7 @@ class ClientApp:
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
                     if point != None and rules.is_legal(self.board, point, self.color_to_play):
                         ghost_preview = (point, self.color_to_play)
-                self.b_renderer.draw(screen, converter.markers_at(self.node, self.size), ghost_preview)
+                self.b_renderer.draw(screen, converter.markers_at(self.node, self.size), converter.labels_at(self.node, self.size), ghost_preview)
                 if self.show_panel:
                     self.p_renderer.draw(screen)
                     if self.show_tree:
@@ -171,6 +171,9 @@ class ClientApp:
 
     def on_edit(self, point: Point|None, edit: Color|Marker):
         if point == None:
+            return
+        if isinstance(edit, Label):
+            converter.toggle_label(self.node, point, edit, self.size)
             return
         if isinstance(edit, Marker):
             converter.toggle_marker(self.node, point, edit, self.size)
