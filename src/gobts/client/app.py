@@ -4,11 +4,14 @@ from gobts.client.board import *
 from gobts.client.panel.layout import PanelLayout
 from gobts.client.panel.renderer import PanelRenderer
 from gobts.client.theme import Theme
+from gobts.client.toolbar.layout import ToolbarLayout
+from gobts.client.toolbar.renderer import ToolbarRenderer
 from gobts.client.toolbar.tool import Tool
 from gobts.client.tree.layout import TreeLayout
 from gobts.client.tree.renderer import TreeRenderer
 from gobts.client.ui import *
 from gobts.core import *
+from gobts.core.board import Marker
 from gobts.sgf.node import SGFNode
 
 import gobts.core.rules as rules
@@ -54,10 +57,7 @@ class ClientApp:
                 MenuItem("Save Game As", lambda: self.save_game(ask_path=True))
             ]),
             Menu("Edit", [
-                MenuItem("Copy", lambda: print('TEST')),
-                MenuItem("Triangle / Cross", lambda: self.toggle_tool(Tool.TRIANGLE_CROSS), checked=lambda: self.tool == Tool.TRIANGLE_CROSS),
-                MenuItem("Circle / Square", lambda: self.toggle_tool(Tool.CIRCLE_SQUARE), checked=lambda: self.tool == Tool.CIRCLE_SQUARE)
-
+                MenuItem("Copy", lambda: print('TEST'))
             ]),
             Menu("View", [
                 MenuItem("Toggle Side Panel", self.toggle_panel, checked=lambda: self.show_panel),
@@ -66,10 +66,11 @@ class ClientApp:
         ], font, theme.menu)
         self.ui_renderer = UIRenderer(self.menubar, font, theme.menu)
 
-        board_layout, panel_layout, tree_layout = self.fit_layouts(WINDOW_SIZE)
+        board_layout, panel_layout, tree_layout, toolbar_layout = self.fit_layouts(WINDOW_SIZE)
         self.b_renderer = BoardRenderer(self.board, board_layout, theme.board)
         self.p_renderer = PanelRenderer(panel_layout, theme.panel)
         self.t_renderer = TreeRenderer(tree_layout, theme.tree)
+        self.tb_renderer = ToolbarRenderer(toolbar_layout, theme.toolbar)
 
         running = True
         needs_redraw = True
@@ -91,13 +92,22 @@ class ClientApp:
                     self.maximized = False
                 elif event.type in REDRAW_EVENTS:
                     needs_redraw = True
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button in (1, 3):
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     node = self.t_renderer.layout.to_node(*event.pos)
+                    tool = self.tb_renderer.layout.to_tool(*event.pos)
                     if node != None:
                         self.go_to(node)
+                    elif tool != None:
+                        self.tool = None if tool == self.tool else tool
+                    elif self.tool == None:
+                        self.on_click(self.b_renderer.layout.to_point(*event.pos))
                     else:
-                        self.on_click(self.b_renderer.layout.to_point(*event.pos), event.button)
+                        self.on_edit(self.b_renderer.layout.to_point(*event.pos), self.tool.left)
                     needs_redraw = True
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                    if self.tool != None:
+                        self.on_edit(self.b_renderer.layout.to_point(*event.pos), self.tool.right)
+                        needs_redraw = True
                 elif event.type == pygame.MOUSEWHEEL:
                     if self.t_renderer.layout.rect.collidepoint(pygame.mouse.get_pos()):
                         self.on_scroll(event.y)
@@ -110,7 +120,7 @@ class ClientApp:
                 screen = self.window.get_surface()
                 if screen.get_size() != self.layout_size:
                     self.layout_size = screen.get_size()
-                    self.b_renderer.layout, self.p_renderer.layout, self.t_renderer.layout = self.fit_layouts(self.layout_size)
+                    self.b_renderer.layout, self.p_renderer.layout, self.t_renderer.layout, self.tb_renderer.layout = self.fit_layouts(self.layout_size)
                 ghost_preview = None
                 if self.tool == None and pygame.mouse.get_focused():
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
@@ -121,6 +131,7 @@ class ClientApp:
                     self.p_renderer.draw(screen)
                     if self.show_tree:
                         self.t_renderer.draw(screen, self.node)
+                    self.tb_renderer.draw(screen, self.tool)
                 self.ui_renderer.draw(screen)
                 self.window.flip()
                 needs_redraw = False
@@ -128,14 +139,7 @@ class ClientApp:
         pygame.quit()
 
     def on_click(self, point: Point|None, button: int = 1):
-        if point == None:
-            return
-        if self.tool != None:
-            marker = self.tool.left if button == 1 else self.tool.right
-            current = converter.markers_at(self.node, self.size).get(point)
-            converter.set_marker(self.node, point, None if current == marker else marker, self.size)
-            return
-        if button != 1 or not rules.is_legal(self.board, point, self.color_to_play):
+        if point == None or not rules.is_legal(self.board, point, self.color_to_play):
             return
         id, value = self.color_to_play.value, converter.format_point(point)
         child = next((child for child in self.node.children if child.get(id) == [value]), None)
@@ -165,12 +169,25 @@ class ClientApp:
         if node is not self.node:
             self.go_to(node)
 
+    def on_edit(self, point: Point|None, edit: Color|Marker):
+        if point == None:
+            return
+        if isinstance(edit, Marker):
+            converter.toggle_marker(self.node, point, edit, self.size)
+            return
+        node = self.node
+        if "B" in node or "W" in node: 
+            node = SGFNode(parent=self.node)
+            self.node.children.append(node)
+        converter.toggle_setup_stone(node, point, edit, self.size)
+        self.go_to(node)
+
 
     def go_to(self, node: SGFNode):
         board = converter.board_at(node)
         self.board = board
         self.size = board.size
-        self.color_to_play = Color.WHITE if "B" in node else Color.BLACK
+        self.color_to_play = converter.next_color(node)
         self.b_renderer.board = board
         self.node = node
         self.layout_size = None
@@ -227,17 +244,14 @@ class ClientApp:
         self.show_tree = not self.show_tree
         self.layout_size = None
 
-    def toggle_tool(self, tool: Tool):
-        self.tool = None if self.tool == tool else tool
-
-
-    def fit_layouts(self, window_size: tuple[int, int]) -> tuple[BoardLayout, PanelLayout, TreeLayout]:
+    def fit_layouts(self, window_size: tuple[int, int]) -> tuple[BoardLayout, PanelLayout, TreeLayout, ToolbarLayout]:
         width, height = window_size
         bar_h = self.menubar.layout.height
         panel_w = self.theme.panel.width if self.show_panel else 0
         board_layout = BoardLayout.fit(self.size, width - panel_w, height - bar_h, self.theme.board, top=bar_h)
-        panel_layout = PanelLayout.fit(pygame.Rect(width - panel_w, bar_h, panel_w, height - bar_h), self.show_tree)
+        panel_layout = PanelLayout.fit(pygame.Rect(width - panel_w, bar_h, panel_w, height - bar_h), self.show_tree, self.theme.toolbar.height)
         tree_layout = TreeLayout.fit(self.root, self.node, panel_layout.tree_rect, self.theme.tree) 
-        return board_layout, panel_layout, tree_layout
+        toolbar_layout = ToolbarLayout.fit(panel_layout.toolbar_rect, self.theme.toolbar)
+        return board_layout, panel_layout, tree_layout, toolbar_layout
 
 ClientApp().run()

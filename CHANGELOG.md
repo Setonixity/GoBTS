@@ -74,6 +74,7 @@
 - (core) ko and self-capture rule
 - (client) side-panel to store other widgets along with game tree
 - (client) shape markers
+- (client) tool/shape selecting widget in side-panel
 
 ### Fixed
 - (client) using pygame depecrated methods in pygame-ce

@@ -66,6 +66,19 @@ def board_at(node: SGFNode) -> Board: # check FROM current node
 def format_point(point: Point) -> str:
     return COORDS_LETTERS[point.x] + COORDS_LETTERS[point.y]
 
+def toggle_setup_stone(node: SGFNode, point: Point, color: Color, size: int) -> None:
+    before = board_at(node.parent) if node.parent != None else Board(size)
+    target = None if board_at(node).get(point) == color else color
+    setup = {id: [p for p in parse_points(node.get(id), size) if p != point] for id in SETUP}
+    if target != before.get(point): 
+        id = next(id for id, c in SETUP.items() if c == target)
+        setup[id].append(point)
+    for id, points in setup.items():
+        if points:
+            node.properties[id] = [format_point(p) for p in points]
+        else:
+            node.properties.pop(id, None)
+
 def markers_at(node: SGFNode, size: int) -> dict[Point, Marker]: 
     markers: dict[Point, Marker] = {}
     for marker in Marker:
@@ -74,13 +87,25 @@ def markers_at(node: SGFNode, size: int) -> dict[Point, Marker]:
                 markers[point] = marker
     return markers
 
-def set_marker(node: SGFNode, point: Point, marker: Marker|None, size: int) -> None:
-    for m in Marker:
-        points = parse_points(node.get(m.value), size)
-        if (point in points) == (m == marker):
-            continue
-        points = [p for p in points if p != point] + ([point] if m == marker else [])
-        if points:
-            node.properties[m.value] = [format_point(p) for p in points]
+def toggle_marker(node: SGFNode, point: Point, marker: Marker, size: int) -> None:
+    markers = markers_at(node, size)
+    if markers.get(point) == marker:
+        del markers[point]
+    else:
+        markers[point] = marker
+    for kind in Marker:
+        values = [format_point(p) for p, m in markers.items() if m == kind]
+        if values:
+            node.properties[kind.value] = values
         else:
-            node.properties.pop(m.value, None)
+            node.properties.pop(kind.value, None)
+
+def next_color(node: SGFNode) -> Color: 
+    current: SGFNode|None = node
+    while current != None:
+        if "B" in current:
+            return Color.WHITE
+        if "W" in current:
+            return Color.BLACK
+        current = current.parent
+    return Color.BLACK
