@@ -1,15 +1,19 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import field
+from pydantic.dataclasses import dataclass
 from pathlib import Path
+from pydantic import BaseModel, PositiveInt, TypeAdapter, field_validator
+# from pydantic import BaseModel, PositiveInt
 
 RGB = tuple[int, int, int]
 DATA_DIR = Path(__file__).parents[3] / "data" / "gobts" # from src/gobts/client
 FONTS_DIR =  DATA_DIR / "fonts"
+THEMES_DIR =  DATA_DIR / "themes"
 IMAGES_DIR = DATA_DIR / "images"
 
 
 @dataclass
-class BoardTheme:
+class BoardTheme():
     background_rgb: RGB = (222, 184, 106)
     line_rgb: RGB = (0, 0, 0)
     star_rgb: RGB = (0, 0, 0)
@@ -38,13 +42,21 @@ class BoardTheme:
     label_font: str|Path = FONTS_DIR / "Ubuntu-Regular.ttf"
     label_size: float = 1.2
 
+    @field_validator("label_font", mode="after")
+    @classmethod
+    def resolve_font_path(cls, value: str | Path) -> Path:
+        path = Path(value)
+        if not path.is_absolute():
+            return FONTS_DIR / path
+        return path
+
 @dataclass
 class PanelTheme:
     background_rgb: RGB = (33, 33, 33)
     width: int = 240
 
 @dataclass
-class TreeTheme:
+class TreeTheme():
     line_rgb: RGB = (100 , 255, 255)
     faded_line_rgb: RGB = (100, 100, 100)
     background_rgb: RGB = (33, 33, 33)
@@ -117,3 +129,32 @@ class Theme:
     tree: TreeTheme = field(default_factory=TreeTheme)
     toolbar: ToolbarTheme = field(default_factory=ToolbarTheme)
     menu: MenuTheme = field(default_factory=MenuTheme)
+
+def load_board_theme_json(x):
+    json_data = Path(x).read_text(encoding="utf-8")
+    board_theme = TypeAdapter(BoardTheme).validate_json(json_data)
+    return board_theme
+
+def load_panel_theme_json(x):
+    json_data = Path(x).read_text(encoding="utf-8")
+    panel_theme = TypeAdapter(PanelTheme).validate_json(json_data)
+    return panel_theme
+
+def load_tree_theme_json(x):
+    json_data = Path(x).read_text(encoding="utf-8")
+    tree_theme = TypeAdapter(TreeTheme).validate_json(json_data)
+    return tree_theme
+
+def load_toolbar_theme_json(x):
+    json_data = Path(x).read_text(encoding="utf-8")
+    toolbar_theme = TypeAdapter(ToolbarTheme).validate_json(json_data)
+    return toolbar_theme
+
+def load_menu_theme_json(x):
+    json_data = Path(x).read_text(encoding="utf-8")
+    menu_theme = TypeAdapter(MenuTheme).validate_json(json_data)
+    return menu_theme
+
+board_theme = load_board_theme_json(THEMES_DIR / "board_theme.json")
+print(board_theme.line_rgb)
+print(board_theme.label_font)
