@@ -80,4 +80,7 @@
 
 ### Fixed
 - (client) using pygame depecrated methods in pygame-ce
-- (client) sgf resolution
+
+## [0.0.7] - 11-11-2026
+### Added
+- (client) theme loader
