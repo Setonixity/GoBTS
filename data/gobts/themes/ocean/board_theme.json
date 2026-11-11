@@ -1,0 +1,7 @@
+{
+    "black_stone_image": "images/black.svg",
+    "white_stone_image": "images/white.svg",
+    "stone_radius": 0.56,
+    "background_image": "images/bg.svg",
+    "surround_texture": "images/sr.png"
+}

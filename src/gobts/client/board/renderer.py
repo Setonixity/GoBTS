@@ -27,12 +27,27 @@ class BoardRenderer:
         self._cached_label_radius: float|None = None
         self._label_font: pygame.font.Font|None = None
 
+        self._background_cache: dict[tuple[int, int], pygame.Surface] = {}
+        self._cached_background_size: tuple[int, int]|None = None
+
+        self._surround_tile = pygame.image.load(theme.surround_texture) if theme.surround_texture != None else None
+        self._surround_cache: dict[tuple[int, int], pygame.Surface] = {}
+        self._cached_surround_size: tuple[int, int]|None = None
+
+
     def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], labels: dict[Point, str], ghost_preview: tuple[Point, Color]|None = None):
         layout = self.layout
         theme = self.theme
         size = layout.size
 
-        surface.fill(theme.background_rgb)
+        if self._surround_tile != None:
+            surface.blit(self.make_surround_sprite(surface.get_size()), (0, 0))
+            pygame.draw.rect(surface, theme.background_rgb, layout.rect)
+        else:
+            surface.fill(theme.background_rgb)
+        if theme.background_image != None:
+            background = self.make_background_sprite(layout.rect.size)
+            surface.blit(background, background.get_rect(center=layout.rect.center))
         line_width = layout.line_width
 
         # grid
@@ -122,12 +137,21 @@ class BoardRenderer:
         if radius != self._cached_radius:
             self._sprite_cache.clear()
             self._cached_radius = radius
-
+ 
         theme = self.theme
         edge_color = theme.stone_edge_rgb
         fill_color = theme.black_rgb if color == Color.BLACK else theme.white_rgb
+        image = theme.black_stone_image if color == Color.BLACK else theme.white_stone_image
         sprite = self._sprite_cache.get((color, radius))
-        if sprite == None:
+        if sprite == None and image != None:
+            size = radius*2 + 1
+            ss_size = size*SUPERSAMPLE
+            big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+            stone = pygame.image.load_sized_svg(image, (radius*2*SUPERSAMPLE, radius*2*SUPERSAMPLE))
+            big.blit(stone, stone.get_rect(center=(ss_size/2, ss_size/2)))
+            sprite = pygame.transform.smoothscale(big, (size, size))
+            self._sprite_cache[(color, radius)] = sprite
+        elif sprite == None:
             size = radius*2 + 1
             ss_size = size*SUPERSAMPLE
             big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
@@ -138,6 +162,7 @@ class BoardRenderer:
             sprite = pygame.transform.smoothscale(big, (size, size))
             self._sprite_cache[(color, radius)] = sprite
         return sprite
+
 
     def make_star_sprite(self, radius: float) -> pygame.Surface:
         if radius != self._cached_star_radius:
@@ -198,6 +223,32 @@ class BoardRenderer:
             image = self._label_font.render(text, True, rgb)
             sprite = image.subsurface(image.get_bounding_rect()).copy()
             self._label_cache[(text, rgb)] = sprite
+        return sprite
+
+    def make_background_sprite(self, size: tuple[int, int]) -> pygame.Surface:
+        if size != self._cached_background_size:
+            self._background_cache.clear()
+            self._cached_background_size = size
+ 
+        sprite = self._background_cache.get(size)
+        if sprite == None:
+            sprite = pygame.image.load_sized_svg(self.theme.background_image, size)
+            self._background_cache[size] = sprite
+        return sprite
+
+    def make_surround_sprite(self, size: tuple[int, int]) -> pygame.Surface:
+        if size != self._cached_surround_size:
+            self._surround_cache.clear()
+            self._cached_surround_size = size
+ 
+        sprite = self._surround_cache.get(size)
+        if sprite == None:
+            tile = self._surround_tile
+            sprite = pygame.Surface(size)
+            for x in range(0, size[0], tile.get_width()):
+                for y in range(0, size[1], tile.get_height()):
+                    sprite.blit(tile, (x, y))
+            self._surround_cache[size] = sprite
         return sprite
 
 

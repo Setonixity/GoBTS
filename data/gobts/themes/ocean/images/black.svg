@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg49"
+   sodipodi:docname="black.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <sodipodi:namedview
+     id="namedview49"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="8.761495"
+     inkscape:cx="13.981632"
+     inkscape:cy="14.780583"
+     inkscape:window-width="1019"
+     inkscape:window-height="737"
+     inkscape:window-x="772"
+     inkscape:window-y="108"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg49" />
+  <title
+     id="title1">Black Go stone</title>
+  <defs
+     id="defs46">
+    <radialGradient
+       id="shadow"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="26"
+       gradientTransform="matrix(0.79716919,0,0,0.79516247,16.187025,16.929489)">
+      <stop
+         offset="0.00000"
+         stop-color="#062431"
+         stop-opacity="0.49620"
+         id="stop1" />
+      <stop
+         offset="0.46154"
+         stop-color="#062431"
+         stop-opacity="0.49560"
+         id="stop2" />
+      <stop
+         offset="0.53846"
+         stop-color="#062431"
+         stop-opacity="0.48846"
+         id="stop3" />
+      <stop
+         offset="0.59615"
+         stop-color="#062431"
+         stop-opacity="0.46285"
+         id="stop4" />
+      <stop
+         offset="0.65385"
+         stop-color="#062431"
+         stop-opacity="0.39666"
+         id="stop5" />
+      <stop
+         offset="0.69231"
+         stop-color="#062431"
+         stop-opacity="0.32543"
+         id="stop6" />
+      <stop
+         offset="0.73077"
+         stop-color="#062431"
+         stop-opacity="0.24075"
+         id="stop7" />
+      <stop
+         offset="0.76923"
+         stop-color="#062431"
+         stop-opacity="0.15741"
+         id="stop8" />
+      <stop
+         offset="0.80769"
+         stop-color="#062431"
+         stop-opacity="0.08953"
+         id="stop9" />
+      <stop
+         offset="0.84615"
+         stop-color="#062431"
+         stop-opacity="0.04376"
+         id="stop10" />
+      <stop
+         offset="0.88462"
+         stop-color="#062431"
+         stop-opacity="0.01821"
+         id="stop11" />
+      <stop
+         offset="0.92308"
+         stop-color="#062431"
+         stop-opacity="0.00641"
+         id="stop12" />
+      <stop
+         offset="0.96154"
+         stop-color="#062431"
+         stop-opacity="0.00190"
+         id="stop13" />
+      <stop
+         offset="1.00000"
+         stop-color="#062431"
+         stop-opacity="0.00000"
+         id="stop14" />
+    </radialGradient>
+    <radialGradient
+       id="body"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="44"
+       gradientTransform="matrix(0.66725388,0,-0.0430579,0.69324952,9.5079614,6.9280814)">
+      <stop
+         offset="0.00000"
+         stop-color="#203c57"
+         id="stop15" />
+      <stop
+         offset="0.09091"
+         stop-color="#214162"
+         id="stop16" />
+      <stop
+         offset="0.18182"
+         stop-color="#294963"
+         id="stop17" />
+      <stop
+         offset="0.27273"
+         stop-color="#2e4c5f"
+         id="stop18" />
+      <stop
+         offset="0.36364"
+         stop-color="#2d4a59"
+         id="stop19" />
+      <stop
+         offset="0.45455"
+         stop-color="#253e4b"
+         id="stop20" />
+      <stop
+         offset="0.54545"
+         stop-color="#1b2f3a"
+         id="stop21" />
+      <stop
+         offset="0.63636"
+         stop-color="#122028"
+         id="stop22" />
+      <stop
+         offset="0.72727"
+         stop-color="#091319"
+         id="stop23" />
+      <stop
+         offset="0.84091"
+         stop-color="#080a0d"
+         id="stop24" />
+      <stop
+         offset="1.00000"
+         stop-color="#0a0a0a"
+         id="stop25" />
+    </radialGradient>
+    <radialGradient
+       id="rim"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="19.01"
+       gradientTransform="matrix(0.6667082,0,0,0.67052373,15.8748,16.041313)">
+      <stop
+         offset="0.79187"
+         stop-color="#000000"
+         stop-opacity="0.00000"
+         id="stop26" />
+      <stop
+         offset="0.83350"
+         stop-color="#000000"
+         stop-opacity="0.00342"
+         id="stop27" />
+      <stop
+         offset="0.87512"
+         stop-color="#000000"
+         stop-opacity="0.01369"
+         id="stop28" />
+      <stop
+         offset="0.91675"
+         stop-color="#000000"
+         stop-opacity="0.03079"
+         id="stop29" />
+      <stop
+         offset="0.95837"
+         stop-color="#000000"
+         stop-opacity="0.05475"
+         id="stop30" />
+      <stop
+         offset="1.00000"
+         stop-color="#000000"
+         stop-opacity="0.08554"
+         id="stop31" />
+    </radialGradient>
+    <radialGradient
+       id="highlight"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="15.886"
+       gradientTransform="matrix(0.66725388,0,-0.052653,0.66303544,11.479696,10.357678)">
+      <stop
+         offset="0.00000"
+         stop-color="#caffff"
+         stop-opacity="0.22000"
+         id="stop32" />
+      <stop
+         offset="0.06250"
+         stop-color="#caffff"
+         stop-opacity="0.21743"
+         id="stop33" />
+      <stop
+         offset="0.12500"
+         stop-color="#caffff"
+         stop-opacity="0.20985"
+         id="stop34" />
+      <stop
+         offset="0.18750"
+         stop-color="#caffff"
+         stop-opacity="0.19760"
+         id="stop35" />
+      <stop
+         offset="0.25000"
+         stop-color="#caffff"
+         stop-opacity="0.18127"
+         id="stop36" />
+      <stop
+         offset="0.31250"
+         stop-color="#caffff"
+         stop-opacity="0.16164"
+         id="stop37" />
+      <stop
+         offset="0.37500"
+         stop-color="#caffff"
+         stop-opacity="0.13963"
+         id="stop38" />
+      <stop
+         offset="0.43750"
+         stop-color="#caffff"
+         stop-opacity="0.11631"
+         id="stop39" />
+      <stop
+         offset="0.50000"
+         stop-color="#caffff"
+         stop-opacity="0.09281"
+         id="stop40" />
+      <stop
+         offset="0.56250"
+         stop-color="#caffff"
+         stop-opacity="0.07028"
+         id="stop41" />
+      <stop
+         offset="0.62500"
+         stop-color="#caffff"
+         stop-opacity="0.04978"
+         id="stop42" />
+      <stop
+         offset="0.68750"
+         stop-color="#caffff"
+         stop-opacity="0.03226"
+         id="stop43" />
+      <stop
+         offset="0.75000"
+         stop-color="#caffff"
+         stop-opacity="0.01842"
+         id="stop44" />
+      <stop
+         offset="0.87500"
+         stop-color="#caffff"
+         stop-opacity="0.00283"
+         id="stop45" />
+      <stop
+         offset="1.00000"
+         stop-color="#caffff"
+         stop-opacity="0.00000"
+         id="stop46" />
+    </radialGradient>
+    <radialGradient
+       id="shadow-3"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="26"
+       gradientTransform="matrix(0.64896257,0,0,0.66062217,16.873027,17.292667)">
+      <stop
+         offset="0.00000"
+         stop-color="#062431"
+         stop-opacity="0.49620"
+         id="stop1-1" />
+      <stop
+         offset="0.46154"
+         stop-color="#062431"
+         stop-opacity="0.49560"
+         id="stop2-4" />
+      <stop
+         offset="0.53846"
+         stop-color="#062431"
+         stop-opacity="0.48846"
+         id="stop3-9" />
+      <stop
+         offset="0.59615"
+         stop-color="#062431"
+         stop-opacity="0.46285"
+         id="stop4-2" />
+      <stop
+         offset="0.65385"
+         stop-color="#062431"
+         stop-opacity="0.39666"
+         id="stop5-0" />
+      <stop
+         offset="0.69231"
+         stop-color="#062431"
+         stop-opacity="0.32543"
+         id="stop6-6" />
+      <stop
+         offset="0.73077"
+         stop-color="#062431"
+         stop-opacity="0.24075"
+         id="stop7-8" />
+      <stop
+         offset="0.76923"
+         stop-color="#062431"
+         stop-opacity="0.15741"
+         id="stop8-9" />
+      <stop
+         offset="0.80769"
+         stop-color="#062431"
+         stop-opacity="0.08953"
+         id="stop9-2" />
+      <stop
+         offset="0.84615"
+         stop-color="#062431"
+         stop-opacity="0.04376"
+         id="stop10-6" />
+      <stop
+         offset="0.88462"
+         stop-color="#062431"
+         stop-opacity="0.01821"
+         id="stop11-6" />
+      <stop
+         offset="0.92308"
+         stop-color="#062431"
+         stop-opacity="0.00641"
+         id="stop12-4" />
+      <stop
+         offset="0.96154"
+         stop-color="#062431"
+         stop-opacity="0.00190"
+         id="stop13-9" />
+      <stop
+         offset="1.00000"
+         stop-color="#062431"
+         stop-opacity="0.00000"
+         id="stop14-5" />
+    </radialGradient>
+    <radialGradient
+       id="rim-8"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="19.01"
+       gradientTransform="matrix(0.69167802,0,0,0.69563645,15.672848,16.296345)">
+      <stop
+         offset="0.79187"
+         stop-color="#000000"
+         stop-opacity="0.00000"
+         id="stop26-71" />
+      <stop
+         offset="0.83350"
+         stop-color="#000000"
+         stop-opacity="0.00342"
+         id="stop27-7" />
+      <stop
+         offset="0.87512"
+         stop-color="#000000"
+         stop-opacity="0.01369"
+         id="stop28-2" />
+      <stop
+         offset="0.91675"
+         stop-color="#000000"
+         stop-opacity="0.03079"
+         id="stop29-7" />
+      <stop
+         offset="0.95837"
+         stop-color="#000000"
+         stop-opacity="0.05475"
+         id="stop30-22" />
+      <stop
+         offset="1.00000"
+         stop-color="#000000"
+         stop-opacity="0.08554"
+         id="stop31-6" />
+    </radialGradient>
+    <radialGradient
+       id="highlight-1"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="15.886"
+       gradientTransform="matrix(0.69224414,0,-0.05462498,0.68786771,11.113137,10.399844)">
+      <stop
+         offset="0.00000"
+         stop-color="#caffff"
+         stop-opacity="0.22000"
+         id="stop32-0" />
+      <stop
+         offset="0.06250"
+         stop-color="#caffff"
+         stop-opacity="0.21743"
+         id="stop33-6" />
+      <stop
+         offset="0.12500"
+         stop-color="#caffff"
+         stop-opacity="0.20985"
+         id="stop34-1" />
+      <stop
+         offset="0.18750"
+         stop-color="#caffff"
+         stop-opacity="0.19760"
+         id="stop35-5" />
+      <stop
+         offset="0.25000"
+         stop-color="#caffff"
+         stop-opacity="0.18127"
+         id="stop36-9" />
+      <stop
+         offset="0.31250"
+         stop-color="#caffff"
+         stop-opacity="0.16164"
+         id="stop37-4" />
+      <stop
+         offset="0.37500"
+         stop-color="#caffff"
+         stop-opacity="0.13963"
+         id="stop38-9" />
+      <stop
+         offset="0.43750"
+         stop-color="#caffff"
+         stop-opacity="0.11631"
+         id="stop39-0" />
+      <stop
+         offset="0.50000"
+         stop-color="#caffff"
+         stop-opacity="0.09281"
+         id="stop40-9" />
+      <stop
+         offset="0.56250"
+         stop-color="#caffff"
+         stop-opacity="0.07028"
+         id="stop41-1" />
+      <stop
+         offset="0.62500"
+         stop-color="#caffff"
+         stop-opacity="0.04978"
+         id="stop42-7" />
+      <stop
+         offset="0.68750"
+         stop-color="#caffff"
+         stop-opacity="0.03226"
+         id="stop43-7" />
+      <stop
+         offset="0.75000"
+         stop-color="#caffff"
+         stop-opacity="0.01842"
+         id="stop44-1" />
+      <stop
+         offset="0.87500"
+         stop-color="#caffff"
+         stop-opacity="0.00283"
+         id="stop45-1" />
+      <stop
+         offset="1.00000"
+         stop-color="#caffff"
+         stop-opacity="0.00000"
+         id="stop46-5" />
+    </radialGradient>
+    <radialGradient
+       id="body-9"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="44"
+       gradientTransform="matrix(0.69224414,0,-0.04467052,0.71921338,9.0675562,6.8418008)">
+      <stop
+         offset="0.00000"
+         stop-color="#203c57"
+         id="stop15-7" />
+      <stop
+         offset="0.09091"
+         stop-color="#214162"
+         id="stop16-7" />
+      <stop
+         offset="0.18182"
+         stop-color="#294963"
+         id="stop17-6" />
+      <stop
+         offset="0.27273"
+         stop-color="#2e4c5f"
+         id="stop18-7" />
+      <stop
+         offset="0.36364"
+         stop-color="#2d4a59"
+         id="stop19-3" />
+      <stop
+         offset="0.45455"
+         stop-color="#253e4b"
+         id="stop20-6" />
+      <stop
+         offset="0.54545"
+         stop-color="#1b2f3a"
+         id="stop21-5" />
+      <stop
+         offset="0.63636"
+         stop-color="#122028"
+         id="stop22-6" />
+      <stop
+         offset="0.72727"
+         stop-color="#091319"
+         id="stop23-3" />
+      <stop
+         offset="0.84091"
+         stop-color="#080a0d"
+         id="stop24-9" />
+      <stop
+         offset="1.00000"
+         stop-color="#0a0a0a"
+         id="stop25-4" />
+    </radialGradient>
+    <radialGradient
+       id="shadow-3-8"
+       gradientUnits="userSpaceOnUse"
+       cx="0"
+       cy="0"
+       r="26"
+       gradientTransform="matrix(0.67326778,0,0,0.68536406,16.708461,17.594565)">
+      <stop
+         offset="0.00000"
+         stop-color="#062431"
+         stop-opacity="0.49620"
+         id="stop1-1-8" />
+      <stop
+         offset="0.46154"
+         stop-color="#062431"
+         stop-opacity="0.49560"
+         id="stop2-4-4" />
+      <stop
+         offset="0.53846"
+         stop-color="#062431"
+         stop-opacity="0.48846"
+         id="stop3-9-8" />
+      <stop
+         offset="0.59615"
+         stop-color="#062431"
+         stop-opacity="0.46285"
+         id="stop4-2-1" />
+      <stop
+         offset="0.65385"
+         stop-color="#062431"
+         stop-opacity="0.39666"
+         id="stop5-0-0" />
+      <stop
+         offset="0.69231"
+         stop-color="#062431"
+         stop-opacity="0.32543"
+         id="stop6-6-12" />
+      <stop
+         offset="0.73077"
+         stop-color="#062431"
+         stop-opacity="0.24075"
+         id="stop7-8-3" />
+      <stop
+         offset="0.76923"
+         stop-color="#062431"
+         stop-opacity="0.15741"
+         id="stop8-9-9" />
+      <stop
+         offset="0.80769"
+         stop-color="#062431"
+         stop-opacity="0.08953"
+         id="stop9-2-0" />
+      <stop
+         offset="0.84615"
+         stop-color="#062431"
+         stop-opacity="0.04376"
+         id="stop10-6-4" />
+      <stop
+         offset="0.88462"
+         stop-color="#062431"
+         stop-opacity="0.01821"
+         id="stop11-6-4" />
+      <stop
+         offset="0.92308"
+         stop-color="#062431"
+         stop-opacity="0.00641"
+         id="stop12-4-4" />
+      <stop
+         offset="0.96154"
+         stop-color="#062431"
+         stop-opacity="0.00190"
+         id="stop13-9-3" />
+      <stop
+         offset="1.00000"
+         stop-color="#062431"
+         stop-opacity="0.00000"
+         id="stop14-5-4" />
+    </radialGradient>
+  </defs>
+  <ellipse
+     cx="16.187023"
+     cy="16.929491"
+     fill="url(#shadow)"
+     id="circle46"
+     style="display:none;fill:url(#shadow);stroke-width:0.999988"
+     rx="20.726398"
+     ry="20.674223" />
+  <metadata
+     id="metadata49">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Black Go stone</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <ellipse
+     cx="16.70846"
+     cy="17.594566"
+     fill="url(#shadow)"
+     id="circle46-4"
+     style="display:inline;fill:url(#shadow-3-8);stroke-width:0.999984"
+     rx="17.504961"
+     ry="17.819466" />
+  <ellipse
+     cx="15.927003"
+     cy="16.297394"
+     fill="url(#body)"
+     id="circle47-0"
+     style="fill:url(#body-9);stroke-width:1"
+     rx="13.152639"
+     ry="13.147185" />
+  <ellipse
+     cx="15.927003"
+     cy="16.297394"
+     fill="url(#highlight)"
+     id="circle48-8"
+     style="fill:url(#highlight-1);stroke-width:1"
+     rx="13.152639"
+     ry="13.147185" />
+  <ellipse
+     cx="15.937759"
+     cy="16.367302"
+     fill="url(#rim)"
+     id="circle49-8"
+     style="fill:url(#rim-8);stroke-width:1"
+     rx="13.141882"
+     ry="13.217092" />
+</svg>

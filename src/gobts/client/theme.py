@@ -3,7 +3,7 @@ from dataclasses import field, fields
 from typing import Annotated, Optional
 from pydantic.dataclasses import dataclass
 from pathlib import Path
-from pydantic import AfterValidator, TypeAdapter, field_validator
+from pydantic import AfterValidator, TypeAdapter, ValidationInfo, field_validator
 
 RGB = tuple[int, int, int]
 DATA_DIR = Path(__file__).parents[3] / "data" / "gobts" # from src/gobts/client
@@ -12,9 +12,14 @@ THEMES_DIR =  DATA_DIR / "themes"
 IMAGES_DIR = DATA_DIR / "images"
 
 def _resolve_in(base_dir: Path):
-    def validator(value: str | Path) -> Path:
+    def validator(value: str | Path, info: ValidationInfo) -> Path:
         path = Path(value)
-        return path if path.is_absolute() else base_dir / path
+        if path.is_absolute():
+            return path
+        theme_dir = (info.context or {}).get("theme_dir")
+        if theme_dir != None and (theme_dir / path).is_file():
+            return theme_dir / path
+        return base_dir / path 
     return validator
 
 FontPath = Annotated[str | Path, AfterValidator(_resolve_in(FONTS_DIR))]
@@ -23,12 +28,16 @@ ImagePath = Annotated[str | Path, AfterValidator(_resolve_in(IMAGES_DIR))]
 @dataclass
 class BoardTheme():
     background_rgb: Optional[RGB] = (222, 184, 106)
+    background_image: Optional[ImagePath] = None
+    surround_texture: Optional[ImagePath] = None
     line_rgb: Optional[RGB] = (0, 0, 0)
     star_rgb: Optional[RGB] = (0, 0, 0)
 
     black_rgb: Optional[RGB] = (0, 0, 0)
     white_rgb: Optional[RGB] = (255, 255, 255)
     stone_edge_rgb: Optional[RGB] = (0, 0, 0)
+    black_stone_image: Optional[ImagePath] = None
+    white_stone_image: Optional[ImagePath] = None
 
     ghost_alpha: Optional[int] = 100
 
@@ -57,7 +66,7 @@ class PanelTheme:
 
 @dataclass
 class TreeTheme():
-    line_rgb: Optional[RGB] = (100 , 255, 255)
+    line_rgb: Optional[RGB] = (255 , 255, 255)
     faded_line_rgb: Optional[RGB] = (100, 100, 100)
     background_rgb: Optional[RGB] = (33, 33, 33)
 
@@ -65,12 +74,15 @@ class TreeTheme():
     black_rgb: Optional[RGB] = (0, 0, 0)
     white_rgb: Optional[RGB] = (255, 255, 255)
     empty_rgb: Optional[RGB] = (90, 90, 90)
+    black_node_image: Optional[ImagePath] = None
+    white_node_image: Optional[ImagePath] = None
+    empty_node_image: Optional[ImagePath] = None
     faded_alpha: Optional[int] = 100 # nodes off the current line
 
     highlight_rgb: Optional[RGB] = (70, 70, 70)
 
     spacing: Optional[int] = 28 
-    pad: Optional[int] = 20 # between outer nodes and panel edge
+    pad: Optional[int] = 20 
     scroll_margin: Optional[int] = 4 # rows kept before it changes page
     line_width: Optional[int] = 1
     node_radius: Optional[int] = 10
@@ -108,11 +120,11 @@ class MenuTheme:
 
     font: FontPath = FONTS_DIR / "Ubuntu-Regular.ttf"
     font_size: Optional[int] = 13
-    text_nudge: Optional[int] = -1 # moves labels up/down to look centered
+    text_nudge: Optional[int] = -1 
     check_nudge: Optional[int] = 0
     check_icon: ImagePath = IMAGES_DIR / "tick.svg"
     check_size: Optional[int] = 12
-    check_width: Optional[int] = 18 # room for check mark
+    check_width: Optional[int] = 18 
 
     bar_height: Optional[int] = 24
     item_height: Optional[int] = 26
@@ -139,34 +151,9 @@ class Theme:
             json_file = folder_path / f"{f.name}_theme.json"
             if json_file.is_file():
                 json_data = json_file.read_text(encoding="utf-8")
-                loaded[f.name] = TypeAdapter(f.type).validate_json(json_data)
+                loaded[f.name] = TypeAdapter(f.type).validate_json(json_data, context={"theme_dir": folder_path})
 
         return cls(**loaded)
 
-    def load_board_theme_json(path):
-        json_data = Path(path).read_text(encoding="utf-8")
-        board_theme = TypeAdapter(BoardTheme).validate_json(json_data)
-        return board_theme
-
-    def load_panel_theme_json(path):
-        json_data = Path(path).read_text(encoding="utf-8")
-        panel_theme = TypeAdapter(PanelTheme).validate_json(json_data)
-        return panel_theme
-
-    def load_tree_theme_json(path):
-        json_data = Path(path).read_text(encoding="utf-8")
-        tree_theme = TypeAdapter(TreeTheme).validate_json(json_data)
-        return tree_theme
-
-    def load_toolbar_theme_json(path):
-        json_data = Path(path).read_text(encoding="utf-8")
-        toolbar_theme = TypeAdapter(ToolbarTheme).validate_json(json_data)
-        return toolbar_theme
-
-    def load_menu_theme_json(path):
-        json_data = Path(path).read_text(encoding="utf-8")
-        menu_theme = TypeAdapter(MenuTheme).validate_json(json_data)
-        return menu_theme
-
-# theme = Theme.from_dir("new_theme")
-# print(theme.board.background_rgb)
+# theme = Theme.from_dir("ocean")
+# print(theme.board.black_stone_image)

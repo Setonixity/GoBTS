@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pathlib import Path
 
 import pygame
 
@@ -17,8 +18,14 @@ class TreeRenderer:
         self.sprites: dict[tuple[Color|None, bool], pygame.Surface] = {}
         self.backing = self.make_node_sprite(theme.background_rgb, theme.background_rgb)
 
-        for color, rgb in ((Color.BLACK, theme.black_rgb), (Color.WHITE, theme.white_rgb), (None, theme.empty_rgb)):
-            sprite = self.make_node_sprite(rgb, theme.node_edge_rgb)
+        nodes = (
+            (Color.BLACK, theme.black_rgb, theme.black_node_image),
+            (Color.WHITE, theme.white_rgb, theme.white_node_image),
+            (None, theme.empty_rgb, theme.empty_node_image)
+        )
+
+        for color, rgb, image in nodes:
+            sprite = self.make_node_sprite(rgb, theme.node_edge_rgb, image)
             faded = sprite.copy()
             faded.set_alpha(theme.faded_alpha)
             self.sprites[(color, False)] = sprite
@@ -64,11 +71,15 @@ class TreeRenderer:
             surface.blit(self.sprites[(color, node not in path)], pos)
         surface.set_clip(clip)
 
-    def make_node_sprite(self, rgb: RGB, edge_rgb: RGB) -> pygame.Surface:
+    def make_node_sprite(self, rgb: RGB, edge_rgb: RGB, image: Path|None = None) -> pygame.Surface:
         radius, edge_width = self.theme.node_radius, self.theme.node_edge_width
         size = radius*2 + 1
         ss_size = size*SUPERSAMPLE
         big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+        if image != None:
+            node = pygame.image.load_sized_svg(image, (radius*2*SUPERSAMPLE, radius*2*SUPERSAMPLE))
+            big.blit(node, node.get_rect(center=(ss_size/2, ss_size/2))) # same diameter as the drawn circle
+            return pygame.transform.smoothscale(big, (size, size))
         big.fill((*edge_rgb, 0))
         pygame.draw.circle(big, edge_rgb, (ss_size/2, ss_size/2), radius*SUPERSAMPLE)
         pygame.draw.circle(big, rgb, (ss_size/2, ss_size/2), radius*SUPERSAMPLE - edge_width*SUPERSAMPLE)

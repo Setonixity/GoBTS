@@ -2,11 +2,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 
+import pygame
+
 from gobts.client.theme import BoardTheme
 from gobts.core.board import *
 
 @dataclass
 class BoardLayout:
+    rect: pygame.Rect
     size: int
     start_x: float
     start_y: float
@@ -19,7 +22,11 @@ class BoardLayout:
         cells_across = (size - 1) + (2 * theme.edge_cells)
         spacing = max(1.0, (min(width, height) / cells_across))
         gridpx_across = (size - 1) * spacing
+        boardpx_across = round(cells_across * spacing)
+        rect = pygame.Rect(0, 0, boardpx_across, boardpx_across)
+        rect.center = (round(width / 2), round(top + height / 2))
         return cls(
+            rect = rect,
             size = size,
             start_x = (width - gridpx_across) / 2,
             start_y = top + (height - gridpx_across) / 2,

@@ -33,7 +33,8 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
-        self.theme = Theme()
+        self.theme = Theme.from_dir('ocean')
+        print(self.theme.board.black_stone_image)
         self.show_panel = True
         self.show_tree = True
         self.tool: Tool|None = None

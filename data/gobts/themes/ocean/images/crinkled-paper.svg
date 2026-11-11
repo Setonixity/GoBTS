@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">
+  <filter id="noise-filter">
+    <feTurbulence result="noise" baseFrequency="0.022" numOctaves="3" type="turbulence" seed="0" stitchTiles="stitch"/>
+    <feDiffuseLighting in="noise" lighting-color="#ffffff" diffuseConstant="1.03" surfaceScale="1">
+      <feDistantLight azimuth="99" elevation="50"/>
+    </feDiffuseLighting>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#noise-filter)"/>
+</svg>
