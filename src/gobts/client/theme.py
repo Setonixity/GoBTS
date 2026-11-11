@@ -45,7 +45,7 @@ class PanelTheme:
 
 @dataclass
 class TreeTheme:
-    line_rgb: RGB = (255 , 255, 255)
+    line_rgb: RGB = (100 , 255, 255)
     faded_line_rgb: RGB = (100, 100, 100)
     background_rgb: RGB = (33, 33, 33)
 
