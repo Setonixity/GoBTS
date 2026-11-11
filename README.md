@@ -8,3 +8,7 @@ No LLMs were intentionally used in the development of this project. Unavoidable 
 
 ## Problem Solutions Disclamer
 Other than specifics library and python documentation, some solutions to problems are shared by users online, and is credited in [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Dependencies
+Dependencies listed in pyproject.toml 
+> pip install -e .
