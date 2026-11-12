@@ -27,12 +27,12 @@ class BoardRenderer:
         self._cached_label_radius: float|None = None
         self._label_font: pygame.font.Font|None = None
 
-        self._background_cache: dict[tuple[int, int], pygame.Surface] = {}
-        self._cached_background_size: tuple[int, int]|None = None
-
         self._surround_tile = pygame.image.load(theme.surround_texture) if theme.surround_texture != None else None
-        self._surround_cache: dict[tuple[int, int], pygame.Surface] = {}
-        self._cached_surround_size: tuple[int, int]|None = None
+
+        self._base: pygame.Surface|None = None
+        self._cached_base_key: tuple|None = None
+        self._clear_cache: dict[float, pygame.Surface] = {}
+        self._cached_clear_radius: float|None = None
 
 
     def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], labels: dict[Point, str], ghost_preview: tuple[Point, Color]|None = None):
@@ -40,14 +40,8 @@ class BoardRenderer:
         theme = self.theme
         size = layout.size
 
-        if self._surround_tile != None:
-            surface.blit(self.make_surround_sprite(surface.get_size()), (0, 0))
-            pygame.draw.rect(surface, theme.background_rgb, layout.rect)
-        else:
-            surface.fill(theme.background_rgb)
-        if theme.background_image != None:
-            background = self.make_background_sprite(layout.rect.size)
-            surface.blit(background, background.get_rect(center=layout.rect.center))
+        base = self.make_base_sprite(surface.get_size())
+        surface.blit(base, (0, 0))
         line_width = layout.line_width
 
         # grid
@@ -69,14 +63,14 @@ class BoardRenderer:
             x, y = layout.to_pixel(point)
             stone = self.board.get(point)
             if stone == None:
-                pygame.draw.circle(surface, theme.background_rgb, (x, y), radius*theme.marker_clear)
+                self.clear_point(surface, base, (x, y), radius*theme.marker_clear)
             rgb = theme.marker_on_black_rgb if stone == Color.BLACK else theme.marker_rgb
             surface.blit(self.make_marker_sprite(marker, rgb, radius), (x - radius, y - radius))
         for point, text in labels.items():
             x, y = layout.to_pixel(point)
             stone = self.board.get(point)
             if stone == None:
-                pygame.draw.circle(surface, theme.background_rgb, (x, y), radius*theme.marker_clear)
+                self.clear_point(surface, base, (x, y), radius*theme.marker_clear)
             rgb = theme.marker_on_black_rgb if stone == Color.BLACK else theme.marker_rgb
             sprite = self.make_label_sprite(text, rgb, radius)
             surface.blit(sprite, sprite.get_rect(center=(x, y)))
@@ -225,32 +219,52 @@ class BoardRenderer:
             self._label_cache[(text, rgb)] = sprite
         return sprite
 
-    def make_background_sprite(self, size: tuple[int, int]) -> pygame.Surface:
-        if size != self._cached_background_size:
-            self._background_cache.clear()
-            self._cached_background_size = size
+    def make_base_sprite(self, size: tuple[int, int]) -> pygame.Surface:
+        layout, theme = self.layout, self.theme
+        key = (size, tuple(layout.rect))
+        if key != self._cached_base_key:
+            self._base = None
+            self._cached_base_key = key
  
-        sprite = self._background_cache.get(size)
+        if self._base == None:
+            base = pygame.Surface(size)
+            if self._surround_tile != None:
+                tile = self._surround_tile
+                for x in range(0, size[0], tile.get_width()):
+                    for y in range(0, size[1], tile.get_height()):
+                        base.blit(tile, (x, y))
+                pygame.draw.rect(base, theme.background_rgb, layout.rect)
+            else:
+                base.fill(theme.background_rgb)
+            if theme.background_image != None:
+                background = pygame.image.load_sized_svg(theme.background_image, layout.rect.size)
+                base.blit(background, background.get_rect(center=layout.rect.center))
+            self._base = base
+        return self._base
+
+    def make_clear_mask(self, radius: float) -> pygame.Surface:
+        if radius != self._cached_clear_radius:
+            self._clear_cache.clear()
+            self._cached_clear_radius = radius
+ 
+        sprite = self._clear_cache.get(radius)
         if sprite == None:
-            sprite = pygame.image.load_sized_svg(self.theme.background_image, size)
-            self._background_cache[size] = sprite
+            size = int(radius*2) + 1
+            ss_size = size*SUPERSAMPLE
+            big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+            big.fill((255, 255, 255, 0)) 
+            pygame.draw.circle(big, (255, 255, 255, 255), (ss_size/2, ss_size/2), radius*SUPERSAMPLE)
+            sprite = pygame.transform.smoothscale(big, (size, size))
+            self._clear_cache[radius] = sprite
         return sprite
 
-    def make_surround_sprite(self, size: tuple[int, int]) -> pygame.Surface:
-        if size != self._cached_surround_size:
-            self._surround_cache.clear()
-            self._cached_surround_size = size
- 
-        sprite = self._surround_cache.get(size)
-        if sprite == None:
-            tile = self._surround_tile
-            sprite = pygame.Surface(size)
-            for x in range(0, size[0], tile.get_width()):
-                for y in range(0, size[1], tile.get_height()):
-                    sprite.blit(tile, (x, y))
-            self._surround_cache[size] = sprite
-        return sprite
-
+    def clear_point(self, surface: pygame.Surface, base: pygame.Surface, center: tuple[float, float], radius: float):
+        mask = self.make_clear_mask(radius)
+        area = mask.get_rect(center=center)
+        patch = pygame.Surface(area.size, pygame.SRCALPHA)
+        patch.blit(base, (0, 0), area)
+        patch.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+        surface.blit(patch, area)
 
 def star_points(size: int = 19) -> list[Point]:
     """
