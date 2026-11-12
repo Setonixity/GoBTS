@@ -3,6 +3,7 @@ from __future__ import annotations
 from gobts.client.board import *
 from gobts.client.panel.layout import PanelLayout
 from gobts.client.panel.renderer import PanelRenderer
+from gobts.client.sound import SoundPlayer
 from gobts.client.theme import Theme
 from gobts.client.toolbar.layout import ToolbarLayout
 from gobts.client.toolbar.renderer import ToolbarRenderer
@@ -128,6 +129,7 @@ class ClientApp:
             child = SGFNode({id: [value]}, parent=self.node)
             self.node.children.append(child)
         self.go_to(child)
+        self.sounds.play_stone()
 
     def on_key(self, key: int):
         if key == pygame.K_UP and self.node.parent != None:
@@ -291,6 +293,7 @@ class ClientApp:
         self.p_renderer = PanelRenderer(panel_layout, theme.panel)
         self.t_renderer = TreeRenderer(tree_layout, theme.tree)
         self.tb_renderer = ToolbarRenderer(toolbar_layout, theme.toolbar)
+        self.sounds = SoundPlayer(theme.sound)
         self.layout_size = None
 
 

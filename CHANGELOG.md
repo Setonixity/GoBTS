@@ -87,7 +87,11 @@
 - (client) optional themes svg for stones, tree nodes, surround img, and board bg 
 - (client) theme switcher menu
 - (client) animated stone placement variance
+- (client) stone placement sound effects
 
 ### Changed
 - (client) labels and shapes now renders the bg as the backing
 - (client) merged surround, bg handling, backing into base_sprite
+
+### Fixed
+- (client) stone border calculation always being based on texture size

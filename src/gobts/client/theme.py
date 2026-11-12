@@ -10,6 +10,7 @@ DATA_DIR = Path(__file__).parents[3] / "data" / "gobts" # from src/gobts/client
 FONTS_DIR =  DATA_DIR / "fonts"
 THEMES_DIR =  DATA_DIR / "themes"
 IMAGES_DIR = DATA_DIR / "images"
+SOUNDS_DIR = DATA_DIR / "sounds"
 
 def _resolve_in(base_dir: Path):
     def validator(value: str | Path, info: ValidationInfo) -> Path:
@@ -24,6 +25,7 @@ def _resolve_in(base_dir: Path):
 
 FontPath = Annotated[str | Path, AfterValidator(_resolve_in(FONTS_DIR))]
 ImagePath = Annotated[str | Path, AfterValidator(_resolve_in(IMAGES_DIR))]
+SoundPath = Annotated[str | Path, AfterValidator(_resolve_in(SOUNDS_DIR))]
 
 @dataclass
 class BoardTheme():
@@ -139,12 +141,18 @@ class MenuTheme:
     dropdown_corner: Optional[int] = 8
 
 @dataclass
+class SoundTheme:
+    stone_sounds: SoundPath = SOUNDS_DIR / "stones" 
+    volume: Optional[float] = 0.8 
+
+@dataclass
 class Theme:
     board: BoardTheme = field(default_factory=BoardTheme)
     panel: PanelTheme = field(default_factory=PanelTheme)
     tree: TreeTheme = field(default_factory=TreeTheme)
     toolbar: ToolbarTheme = field(default_factory=ToolbarTheme)
     menu: MenuTheme = field(default_factory=MenuTheme)
+    sound: SoundTheme = field(default_factory=SoundTheme)
 
     @classmethod
     def from_dir(cls, folder: str | Path) -> Theme:
