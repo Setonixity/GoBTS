@@ -1,8 +1,12 @@
 {
     "black_stone_image": "images/black.svg",
     "white_stone_image": "images/white.svg",
-    "stone_radius": 0.57,
+    "stone_radius": 0.569,
+    "stone_image_fill": 0.81,
     "background_rgb": [81,192,188],
     "background_image": "images/bg.svg",
-    "surround_texture": "images/sr.png"
+    "surround_texture": "images/sr.png",
+
+    "stone_shift": 1.0,
+    "stone_slide": 0.14
 }

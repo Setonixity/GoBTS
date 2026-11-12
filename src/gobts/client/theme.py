@@ -38,6 +38,7 @@ class BoardTheme():
     stone_edge_rgb: Optional[RGB] = (0, 0, 0)
     black_stone_image: Optional[ImagePath] = None
     white_stone_image: Optional[ImagePath] = None
+    stone_image_fill: Optional[float] = 1.0
 
     ghost_alpha: Optional[int] = 100
 
@@ -48,10 +49,13 @@ class BoardTheme():
 
     stone_radius: Optional[float] = 0.47 # of a cell
     stone_edge: Optional[float] = 0.05 # of the stone radius. min = 1px
+    stone_shift: Optional[float] = 0 # 1.0
+    stone_slide: Optional[float] = 0 # 0.12
+    slide_ms: Optional[int] = 120
 
     marker_rgb: Optional[RGB] = (0, 0, 0)
     marker_on_black_rgb: Optional[RGB] = (255, 255, 255)
-    # of stone radius
+
     marker_size: Optional[float] = 0.5 
     marker_width: Optional[float] = 0.12 # min = 1px
     marker_clear: Optional[float] = 0.75 

@@ -1,4 +1,6 @@
 from __future__ import annotations
+import math
+import random
 
 import pygame
 
@@ -34,6 +36,12 @@ class BoardRenderer:
         self._clear_cache: dict[float, pygame.Surface] = {}
         self._cached_clear_radius: float|None = None
 
+        self._shifts: dict[tuple[Point, Color], tuple[float, float]] = {}
+        self._slides: dict[Point, tuple[tuple[float, float], int]] = {}
+
+    @property
+    def animating(self) -> bool:
+        return bool(self._slides)
 
     def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], labels: dict[Point, str], ghost_preview: tuple[Point, Color]|None = None):
         layout = self.layout
@@ -52,22 +60,24 @@ class BoardRenderer:
         star_radius = max(theme.min_star_radius, round(layout.spacing * theme.star_radius))
         star_sprite = self.make_star_sprite(star_radius)
         for point in star_points(layout.size):
-            x, y = layout.to_pixel(point)
+            x, y = self.stone_pixel(point)
             surface.blit(star_sprite, (x - star_radius, y - star_radius))
 
         radius = layout.stone_radius
-        for point, color in self.board.stones:
-            x, y = layout.to_pixel(point)
+        self.update_shifts()
+        stones = sorted(self.board.stones, key=lambda stone: stone[0] in self._slides)
+        for point, color in stones:
+            x, y = self.stone_pixel(point)
             surface.blit(self.make_stone_sprite(color, radius), (x - radius, y - radius))
         for point, marker in markers.items():
-            x, y = layout.to_pixel(point)
+            x, y = self.stone_pixel(point)
             stone = self.board.get(point)
             if stone == None:
                 self.clear_point(surface, base, (x, y), radius*theme.marker_clear)
             rgb = theme.marker_on_black_rgb if stone == Color.BLACK else theme.marker_rgb
             surface.blit(self.make_marker_sprite(marker, rgb, radius), (x - radius, y - radius))
         for point, text in labels.items():
-            x, y = layout.to_pixel(point)
+            x, y = self.stone_pixel(point)
             stone = self.board.get(point)
             if stone == None:
                 self.clear_point(surface, base, (x, y), radius*theme.marker_clear)
@@ -79,6 +89,32 @@ class BoardRenderer:
             sprite = self.make_stone_sprite(ghost_preview[1], radius).copy()
             sprite.set_alpha(theme.ghost_alpha)
             surface.blit(sprite, (x - radius, y - radius))
+
+    def update_shifts(self):
+        theme = self.theme
+        now = pygame.time.get_ticks()
+        stones = set(self.board.stones)
+        self._shifts = {stone: shift for stone, shift in self._shifts.items() if stone in stones}
+        self._slides = {point: slide for point, slide in self._slides.items() if now - slide[1] < theme.slide_ms}
+
+        new = stones - set(self._shifts)
+        for point, color in new:
+            self._shifts[(point, color)] = (random.uniform(-1, 1), random.uniform(-1, 1))
+            moved = self.settle_neighbors(point)
+            if len(new) == 1:
+                angle = random.uniform(0, 2*math.pi)
+                distance = theme.stone_slide*self.layout.spacing
+                end_x, end_y = self.shift_offset(self._shifts[(point, color)])
+                self._slides[point] = ((end_x + distance*math.cos(angle), end_y + distance*math.sin(angle)), now)
+                for neighbor, old in moved.items():
+                    self._slides[neighbor] = (self.shift_offset(old), now)
+
+    
+    def shift_offset(self, shift: tuple[float, float]) -> tuple[float, float]:
+        layout, theme = self.layout, self.theme
+        stone_radius = layout.stone_radius*theme.stone_image_fill
+        reach = max(0, int(layout.spacing) - 2*stone_radius) * theme.stone_shift
+        return (shift[0]*reach, shift[1]*reach)
 
     def draw_ascii(self):
         CORNERS = ["┌", "┐", "└", "┘"] # TL, TR, BL, BR
@@ -265,6 +301,37 @@ class BoardRenderer:
         patch.blit(base, (0, 0), area)
         patch.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         surface.blit(patch, area)
+
+    def settle_neighbors(self, point: Point) -> dict[Point, tuple[float, float]]:
+        shift_x, shift_y = self._shifts[(point, self.board.get(point))]
+        moved: dict[Point, tuple[float, float]] = {}
+        for neighbor in self.board.neighbors(point):
+            key = (neighbor, self.board.get(neighbor))
+            if key not in self._shifts:
+                continue
+            old_x, old_y = self._shifts[key]
+            dx, dy = neighbor.x - point.x, neighbor.y - point.y
+            new_x = shift_x - dx if (shift_x - old_x)*dx > 1 else old_x
+            new_y = shift_y - dy if (shift_y - old_y)*dy > 1 else old_y
+            if (new_x, new_y) != (old_x, old_y):
+                self._shifts[key] = (new_x, new_y)
+                moved[neighbor] = (old_x, old_y)
+        return moved
+
+    def stone_pixel(self, point: Point) -> tuple[float, float]:
+        x, y = self.layout.to_pixel(point)
+        shift = self._shifts.get((point, self.board.get(point)))
+        if shift == None: 
+            return (x, y)
+        dx, dy = self.shift_offset(shift)
+        slide = self._slides.get(point)
+        if slide != None:
+            (start_x, start_y), start = slide
+            def ease_out(t: float) -> float:
+                return 1 - (1 - t)**3
+            t = ease_out(min(1, (pygame.time.get_ticks() - start) / max(1, self.theme.slide_ms)))
+            dx, dy = start_x + (dx - start_x)*t, start_y + (dy - start_y)*t
+        return (x + int(dx), y + int(dy))
 
 def star_points(size: int = 19) -> list[Point]:
     """

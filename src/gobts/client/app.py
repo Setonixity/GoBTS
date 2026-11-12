@@ -42,11 +42,11 @@ class ClientApp:
         self.new_game()
 
     def run(self):
-        theme = self.theme
         pygame.init()
         self.window = Window(WINDOW_TITLE, WINDOW_SIZE, resizable=True)
         screen = self.window.get_surface()
         pygame.key.set_repeat(300, 50)
+        clock = pygame.time.Clock()
 
         self.layout_size = None
         self.maximized = False
@@ -114,7 +114,8 @@ class ClientApp:
                     self.tb_renderer.draw(screen, self.tool)
                 self.ui_renderer.draw(screen)
                 self.window.flip()
-                needs_redraw = False
+                needs_redraw = self.b_renderer.animating
+                clock.tick(FPS)
             
         pygame.quit()
 
@@ -251,7 +252,7 @@ class ClientApp:
         previous = (self.theme, self.theme_name)
         try:
             self.theme, self.theme_name = self.load_theme(name), name
-            self.build_ui() # also fails on missing fonts/images
+            self.build_ui() 
         except Exception as error:
             self.theme, self.theme_name = previous
             self.build_ui()

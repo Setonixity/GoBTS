@@ -81,11 +81,12 @@
 ### Fixed
 - (client) using pygame depecrated methods in pygame-ce
 
-## [0.0.7] - 11-11-2026
+## [0.0.7] - 12-11-2026
 ### Added
 - (client) theme loader
 - (client) optional themes svg for stones, tree nodes, surround img, and board bg 
 - (client) theme switcher menu
+- (client) animated stone placement variance
 
 ### Changed
 - (client) labels and shapes now renders the bg as the backing

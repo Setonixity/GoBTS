@@ -38,3 +38,4 @@ For SGF parsing, the code follows this [naming convention](https://homepages.cwi
 - keep pygame responsive: [riptutorial](https://riptutorial.com/pygame/example/18046/event-loop)
 - lru cache safeguard: [reddit](https://www.reddit.com/r/pygame/comments/10kgugs/looking_for_tips_on_how_to_optimize_my_pygame/)
 - fix supersampling gamma-average: [ericbasseur](https://www.ericbrasseur.org/gamma.html?i=1)
+- sgf noise creator: [chrismbarr](https://chrismbarr.github.io/noise-maker/?base-frequency-x=0.022&separate-frequencies=false&octaves=3&noise-type=turbulence&seed=0&tile-stitch=stitch&enable-lighting=true&lighting-lighting-color=%23ffffff&lighting-primitive-type=feDiffuseLighting&lighting-surface-scale=1&lighting-diffuse-constant=1.03&light-type=distant&lighting-distant-azimuth=99&lighting-distant-elevation=50&enable-effects=false&bg-type=solid-color&bg-color=%23e9e4ef&enable-custom-size=true&custom-width=500&custom-height=500)
