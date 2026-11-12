@@ -44,7 +44,7 @@ class BoardTheme():
     edge_cells: Optional[float] = 1.3 # space b/w outer lines and window edge
     px_per_line: Optional[int] = 800 # lines thickness +1px for about every this many px
     min_star_radius: Optional[int] = 2
-    star_radius: Optional[float] = 0.1 # 10th of a cell
+    star_radius: Optional[float] = 0.1 
 
     stone_radius: Optional[float] = 0.47 # of a cell
     stone_edge: Optional[float] = 0.05 # of the stone radius. min = 1px
@@ -154,6 +154,14 @@ class Theme:
                 loaded[f.name] = TypeAdapter(f.type).validate_json(json_data, context={"theme_dir": folder_path})
 
         return cls(**loaded)
+
+    def available_themes() -> list[str]:
+        if not THEMES_DIR.is_dir():
+            return []
+        return sorted(
+            (p.name for p in THEMES_DIR.iterdir() if p.is_dir() and not p.name.startswith((".", "_"))),
+            key=str.lower
+        )
 
 # theme = Theme.from_dir("ocean")
 # print(theme.board.black_stone_image)

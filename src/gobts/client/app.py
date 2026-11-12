@@ -33,8 +33,9 @@ class ClientApp:
     def __init__(self, size: int = 19):
         self.size = size
         self.board = Board(size)
-        self.theme = Theme.from_dir('ocean')
-        print(self.theme.board.black_stone_image)
+        self.theme_names = Theme.available_themes()
+        self.theme_name: str|None = None
+        self.theme = self.load_theme(self.theme_name)
         self.show_panel = True
         self.show_tree = True
         self.tool: Tool|None = None
@@ -49,29 +50,7 @@ class ClientApp:
 
         self.layout_size = None
         self.maximized = False
-        font = pygame.font.Font(theme.menu.font, theme.menu.font_size)
-        self.menubar = MenuBar([
-            Menu("File", [
-                MenuItem("New Game", self.new_game),
-                MenuItem("Open Game", self.open_game),
-                MenuItem("Save Game", self.save_game),
-                MenuItem("Save Game As", lambda: self.save_game(ask_path=True))
-            ]),
-            Menu("Edit", [
-                MenuItem("Copy", lambda: print('TEST'))
-            ]),
-            Menu("View", [
-                MenuItem("Toggle Side Panel", self.toggle_panel, checked=lambda: self.show_panel),
-                MenuItem("Toggle Game Tree", self.toggle_tree, checked=lambda: self.show_tree)
-            ])
-        ], font, theme.menu)
-        self.ui_renderer = UIRenderer(self.menubar, font, theme.menu)
-
-        board_layout, panel_layout, tree_layout, toolbar_layout = self.fit_layouts(WINDOW_SIZE)
-        self.b_renderer = BoardRenderer(self.board, board_layout, theme.board)
-        self.p_renderer = PanelRenderer(panel_layout, theme.panel)
-        self.t_renderer = TreeRenderer(tree_layout, theme.tree)
-        self.tb_renderer = ToolbarRenderer(toolbar_layout, theme.toolbar)
+        self.build_ui()
 
         running = True
         needs_redraw = True
@@ -257,5 +236,61 @@ class ClientApp:
         tree_layout = TreeLayout.fit(self.root, self.node, panel_layout.tree_rect, self.theme.tree) 
         toolbar_layout = ToolbarLayout.fit(panel_layout.toolbar_rect, self.theme.toolbar)
         return board_layout, panel_layout, tree_layout, toolbar_layout
+
+    def load_theme(self, name: str|None) -> Theme:
+        return Theme() if name == None else Theme.from_dir(name)
+
+    def reload_themes(self):
+        self.theme_names = Theme.available_themes()
+        if self.theme_name in self.theme_names:
+            self.set_theme(self.theme_name)
+        else:
+            self.build_menubar()
+
+    def set_theme(self, name: str|None):
+        previous = (self.theme, self.theme_name)
+        try:
+            self.theme, self.theme_name = self.load_theme(name), name
+            self.build_ui() # also fails on missing fonts/images
+        except Exception as error:
+            self.theme, self.theme_name = previous
+            self.build_ui()
+            dialogs.show_error("Could not load theme", f"{name or 'default'}\n{error}")
+
+    def build_menubar(self):
+        theme = self.theme
+        font = pygame.font.Font(theme.menu.font, theme.menu.font_size)
+        self.menubar = MenuBar([
+            Menu("File", [
+                MenuItem("New Game", self.new_game),
+                MenuItem("Open Game", self.open_game),
+                MenuItem("Save Game", self.save_game),
+                MenuItem("Save Game As", lambda: self.save_game(ask_path=True))
+            ]),
+            Menu("Edit", [
+                MenuItem("Copy", lambda: print('TEST'))
+            ]),
+            Menu("View", [
+                MenuItem("Toggle Side Panel", self.toggle_panel, checked=lambda: self.show_panel),
+                MenuItem("Toggle Game Tree", self.toggle_tree, checked=lambda: self.show_tree)
+            ]),
+            Menu("Themes", [
+                MenuItem("Reload Themes Folder", self.reload_themes),
+                MenuItem("default", lambda: self.set_theme(None), checked=lambda: self.theme_name == None),
+                *(MenuItem(name, lambda name=name: self.set_theme(name), checked=lambda name=name: name == self.theme_name) for name in self.theme_names)
+            ])
+        ], font, theme.menu)
+        self.ui_renderer = UIRenderer(self.menubar, font, theme.menu)
+
+    def build_ui(self):
+        theme = self.theme
+        self.build_menubar()
+        board_layout, panel_layout, tree_layout, toolbar_layout = self.fit_layouts(self.window.get_surface().get_size())
+        self.b_renderer = BoardRenderer(self.board, board_layout, theme.board)
+        self.p_renderer = PanelRenderer(panel_layout, theme.panel)
+        self.t_renderer = TreeRenderer(tree_layout, theme.tree)
+        self.tb_renderer = ToolbarRenderer(toolbar_layout, theme.toolbar)
+        self.layout_size = None
+
 
 ClientApp().run()

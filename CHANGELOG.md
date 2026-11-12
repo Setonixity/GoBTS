@@ -85,3 +85,4 @@
 ### Added
 - (client) theme loader
 - (client) optional themes svg for stones, tree nodes, surround img, and board bg 
+- (client) theme switcher menu
