@@ -88,10 +88,12 @@
 - (client) theme switcher menu
 - (client) animated stone placement variance
 - (client) stone placement sound effects
+- (client) pitch variance for stone sfx
 
 ### Changed
 - (client) labels and shapes now renders the bg as the backing
 - (client) merged surround, bg handling, backing into base_sprite
+- (client) random now don't allow consecutive repeats
 
 ### Fixed
 - (client) stone border calculation always being based on texture size

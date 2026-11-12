@@ -143,7 +143,8 @@ class MenuTheme:
 @dataclass
 class SoundTheme:
     stone_sounds: SoundPath = SOUNDS_DIR / "stones" 
-    volume: Optional[float] = 0.8 
+    volume: Optional[float] = 0.2 
+    pitch_variance: Optional[float] = 1.0
 
 @dataclass
 class Theme:
