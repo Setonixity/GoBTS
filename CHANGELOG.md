@@ -98,3 +98,7 @@
 ### Fixed
 - (client) stone border calculation always being based on texture size
 - (client) resolve_in recognising only files
+
+## [0.0.8] - 14-11-2026
+### Added
+- (client) actionbar

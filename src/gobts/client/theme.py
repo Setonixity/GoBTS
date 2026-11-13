@@ -118,6 +118,21 @@ class ToolbarTheme:
     node_edge_width: Optional[int] = 1
 
 @dataclass
+class ActionBarTheme:
+    background_rgb: Optional[RGB] = (45, 45, 45)
+    hover_rgb: Optional[RGB] = (60, 60, 60)
+    icon_rgb: Optional[RGB] = (255, 255, 255)
+
+    pass_icon: ImagePath = IMAGES_DIR / "pass.svg"
+    score_icon: ImagePath = IMAGES_DIR / "score.svg"
+
+    height: Optional[int] = 40
+    button_width: Optional[int] = 76 
+    button_height: Optional[int] = 36
+    pad: Optional[int] = 4
+    icon_size: Optional[int] = 32
+
+@dataclass
 class MenuTheme:
     bar_rgb: Optional[RGB] = (33, 33, 33)
     dropdown_rgb: Optional[RGB] = (60, 60, 60)
@@ -153,6 +168,7 @@ class Theme:
     panel: PanelTheme = field(default_factory=PanelTheme)
     tree: TreeTheme = field(default_factory=TreeTheme)
     toolbar: ToolbarTheme = field(default_factory=ToolbarTheme)
+    actionbar: ActionBarTheme = field(default_factory=ActionBarTheme)
     menu: MenuTheme = field(default_factory=MenuTheme)
     sound: SoundTheme = field(default_factory=SoundTheme)
 

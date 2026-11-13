@@ -2,5 +2,5 @@
     "stone_sounds": "sounds/",
     "pitch_variance_min": -1.0,
     "pitch_variance_max": 1.0,
-    "volume": 0.4
+    "volume": 0.8
 }
