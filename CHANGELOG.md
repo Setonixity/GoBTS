@@ -97,3 +97,4 @@
 
 ### Fixed
 - (client) stone border calculation always being based on texture size
+- (client) resolve_in recognising only files

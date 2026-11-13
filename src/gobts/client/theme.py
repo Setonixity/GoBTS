@@ -18,7 +18,7 @@ def _resolve_in(base_dir: Path):
         if path.is_absolute():
             return path
         theme_dir = (info.context or {}).get("theme_dir")
-        if theme_dir != None and (theme_dir / path).is_file():
+        if theme_dir is not None and (theme_dir / path).exists():
             return theme_dir / path
         return base_dir / path 
     return validator
@@ -144,7 +144,8 @@ class MenuTheme:
 class SoundTheme:
     stone_sounds: SoundPath = SOUNDS_DIR / "stones" 
     volume: Optional[float] = 0.2 
-    pitch_variance: Optional[float] = 1.0
+    pitch_variance_min: Optional[float] = -2.0
+    pitch_variance_max: Optional[float] = 0.0
 
 @dataclass
 class Theme:

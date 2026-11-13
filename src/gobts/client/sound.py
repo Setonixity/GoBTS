@@ -8,7 +8,7 @@ import pygame
 
 from gobts.client.theme import SoundTheme
 
-SOUND_TYPES = ("*.ogg", "*.mp3")
+SOUND_TYPES = ("*.ogg", "*.mp3", "*.oga")
 
 class SoundPlayer:
     def __init__(self, theme: SoundTheme):
@@ -24,8 +24,9 @@ class SoundPlayer:
         self.play(self.stones[self.last_stone])
 
     def play(self, samples: numpy.ndarray):
-        variance = self.theme.pitch_variance
-        sound = self.pitch_shift(samples, random.uniform(-variance, 0))
+        min = self.theme.pitch_variance_min
+        max = self.theme.pitch_variance_max
+        sound = self.pitch_shift(samples, random.uniform(min, max))
         sound.set_volume(self.theme.volume)
         sound.play()
 
