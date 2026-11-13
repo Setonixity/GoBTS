@@ -35,6 +35,7 @@ class Board():
         self.size = size
         self._grid: list[list[Color|None]] = [[None]*self.size for _ in range(self.size)]
         self.ko: Point|None = None
+        self.captures: dict[Color, int] = {Color.BLACK: 0, Color.WHITE: 0}
 
     def get(self, point: Point) -> Color|None:
         return self._grid[point.y][point.x]
@@ -53,6 +54,7 @@ class Board():
         for y, row in enumerate(self._grid):
             for x, _ in enumerate(row):
                 self.set(Point(x, y), None)
+        self.captures = {Color.BLACK: 0, Color.WHITE: 0}
 
     @property
     def stones(self) -> Iterator[Point, Color]:

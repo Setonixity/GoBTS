@@ -36,6 +36,9 @@ class BoardRenderer:
         self._clear_cache: dict[float, pygame.Surface] = {}
         self._cached_clear_radius: float|None = None
 
+        self._territory: pygame.Surface|None = None
+        self._cached_territory_key: tuple|None = None
+
         self._shifts: dict[tuple[Point, Color], tuple[float, float]] = {}
         self._slides: dict[Point, tuple[tuple[float, float], int]] = {}
 
@@ -43,7 +46,7 @@ class BoardRenderer:
     def animating(self) -> bool:
         return bool(self._slides)
 
-    def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], labels: dict[Point, str], ghost_preview: tuple[Point, Color]|None = None):
+    def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], labels: dict[Point, str], ghost_preview: tuple[Point, Color]|None = None, territory: dict[Point, Color]|None = None):
         layout = self.layout
         theme = self.theme
         size = layout.size
@@ -62,6 +65,8 @@ class BoardRenderer:
         for point in star_points(layout.size):
             x, y = self.stone_pixel(point)
             surface.blit(star_sprite, (x - star_radius, y - star_radius))
+        if territory:
+            surface.blit(self.make_territory_sprite(territory), layout.rect)
 
         radius = layout.stone_radius
         self.update_shifts()
@@ -277,6 +282,25 @@ class BoardRenderer:
                 base.blit(background, background.get_rect(center=layout.rect.center))
             self._base = base
         return self._base
+
+    def make_territory_sprite(self, territory: dict[Point, Color]) -> pygame.Surface:
+        layout, theme = self.layout, self.theme
+        key = (frozenset(territory.items()), tuple(layout.rect))
+        if key != self._cached_territory_key:
+            self._territory = None
+            self._cached_territory_key = key
+
+        if self._territory == None:
+            sprite = pygame.Surface(layout.rect.size, pygame.SRCALPHA)
+            half = layout.spacing*theme.territory_size / 2
+            for point, color in territory.items():
+                rgb = theme.black_territory_rgb if color == Color.BLACK else theme.white_territory_rgb
+                x = layout.start_x + point.x*layout.spacing - layout.rect.x
+                y = layout.start_y + point.y*layout.spacing - layout.rect.y
+                left, top = round(x - half), round(y - half)
+                sprite.fill((*rgb, theme.territory_alpha), (left, top, round(x + half) - left, round(y + half) - top))
+            self._territory = sprite
+        return self._territory
 
     def make_clear_mask(self, radius: float) -> pygame.Surface:
         if radius != self._cached_clear_radius:

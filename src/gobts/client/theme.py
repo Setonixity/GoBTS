@@ -65,6 +65,11 @@ class BoardTheme():
     label_font: FontPath = FONTS_DIR / "Ubuntu-Regular.ttf"
     label_size: Optional[float] = 1.2
 
+    black_territory_rgb: Optional[RGB] = (0, 0, 0)
+    white_territory_rgb: Optional[RGB] = (255, 255, 255)
+    territory_alpha: Optional[int] = 110
+    territory_size: Optional[float] = 1.0
+
 @dataclass
 class PanelTheme:
     background_rgb: Optional[RGB] = (33, 33, 33)
@@ -121,14 +126,19 @@ class ToolbarTheme:
 class ActionBarTheme:
     background_rgb: Optional[RGB] = (45, 45, 45)
     hover_rgb: Optional[RGB] = (60, 60, 60)
+    selected_rgb: Optional[RGB] = (75, 75, 75)
     icon_rgb: Optional[RGB] = (255, 255, 255)
+    text_rgb: Optional[RGB] = (255, 255, 255)
 
     pass_icon: ImagePath = IMAGES_DIR / "pass.svg"
     score_icon: ImagePath = IMAGES_DIR / "score.svg"
+    font: FontPath = FONTS_DIR / "Ubuntu-Regular.ttf"
+    font_size: Optional[int] = 16
+    text_nudge: Optional[int] = -3
 
     height: Optional[int] = 40
-    button_width: Optional[int] = 76 
-    button_height: Optional[int] = 36
+    button_width: Optional[int] = ToolbarTheme.button_size*2
+    button_height: Optional[int] = ToolbarTheme.height
     pad: Optional[int] = 4
     icon_size: Optional[int] = 32
 

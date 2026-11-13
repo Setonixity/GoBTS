@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from gobts.client.actionbar.action import Action
 from gobts.client.actionbar.layout import ActionBarLayout
 from gobts.client.actionbar.renderer import ActionBarRenderer
 from gobts.client.board import *
@@ -14,6 +15,7 @@ from gobts.client.tree.layout import TreeLayout
 from gobts.client.tree.renderer import TreeRenderer
 from gobts.client.ui import *
 from gobts.core import *
+from gobts.core import scoring
 from gobts.core.board import Label, Marker
 from gobts.sgf.node import SGFNode
 
@@ -78,10 +80,13 @@ class ClientApp:
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     node = self.t_renderer.layout.to_node(*event.pos)
                     tool = self.tb_renderer.layout.to_tool(*event.pos)
+                    action = self.ab_renderer.layout.to_action(*event.pos)
                     if node != None:
                         self.go_to(node)
                     elif tool != None:
                         self.tool = None if tool == self.tool else tool
+                    elif action != None:
+                        self.on_action(action)
                     elif self.tool == None:
                         self.on_click(self.b_renderer.layout.to_point(*event.pos))
                     else:
@@ -109,13 +114,14 @@ class ClientApp:
                     point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
                     if point != None and rules.is_legal(self.board, point, self.color_to_play):
                         ghost_preview = (point, self.color_to_play)
-                self.b_renderer.draw(screen, converter.markers_at(self.node, self.size), converter.labels_at(self.node, self.size), ghost_preview)
+                territory = self.score.territory if self.score != None else None
+                self.b_renderer.draw(screen, converter.markers_at(self.node, self.size), converter.labels_at(self.node, self.size), ghost_preview, territory)
                 if self.show_panel:
                     self.p_renderer.draw(screen)
                     if self.show_tree:
                         self.t_renderer.draw(screen, self.node)
                     self.tb_renderer.draw(screen, self.tool)
-                    self.ab_renderer.draw(screen)
+                    self.ab_renderer.draw(screen, self.score.result if self.score != None else None)
                 self.ui_renderer.draw(screen)
                 self.window.flip()
                 needs_redraw = self.b_renderer.animating
@@ -171,6 +177,25 @@ class ClientApp:
         converter.toggle_setup_stone(node, point, edit, self.size)
         self.go_to(node)
 
+    def on_pass(self):
+        id = self.color_to_play.value
+        child = next((child for child in self.node.children if converter.is_pass(child, self.color_to_play, self.size)), None)
+        if child == None:
+            child = SGFNode({id: [""]}, parent=self.node)
+            self.node.children.append(child)
+        self.go_to(child)
+
+    def on_action(self, action: Action):
+        if action == Action.PASS:
+            self.on_pass()
+        elif action == Action.SCORE:
+            self.toggle_score()
+
+    def toggle_score(self):
+        if self.score != None:
+            self.score = None
+        else:
+            self.score = scoring.territory_score(self.board, converter.komi(self.root))
 
     def go_to(self, node: SGFNode):
         board = converter.board_at(node)
@@ -179,6 +204,7 @@ class ClientApp:
         self.color_to_play = converter.next_color(node)
         self.b_renderer.board = board
         self.node = node
+        self.score = None
         self.layout_size = None
     
     def open_game(self):
@@ -212,6 +238,7 @@ class ClientApp:
         self.root = SGFNode({"GM": ["1"], "FF": ["4"], "SZ": [str(self.size)]})
         self.node = self.root
         self.path = None
+        self.score: scoring.Score|None = None
         self.layout_size = None
 
     def toggle_panel(self):

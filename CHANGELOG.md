@@ -102,3 +102,5 @@
 ## [0.0.8] - 14-11-2026
 ### Added
 - (client) actionbar
+- (client) pass & score button
+- (core) go scorer by lightvector implementation

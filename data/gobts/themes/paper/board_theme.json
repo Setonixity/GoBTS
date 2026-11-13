@@ -1,3 +1,4 @@
 {
-    "background_rgb": [247,247,247]
+    "background_rgb": [247,247,247],
+    "surround_texture": "images/sr.png"
 }

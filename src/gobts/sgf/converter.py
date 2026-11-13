@@ -16,6 +16,13 @@ def board_size(root: SGFNode) -> int:
     size = int(cols)
     return size
 
+def komi(root: SGFNode) -> float:
+    value = root.get("KM")[0] if root.get("KM") else "6.5"
+    try:
+        return float(value)
+    except ValueError:
+        return 6.5
+
 def apply_node(board: Board, node:SGFNode) -> None:
     if any(id in node for id in SETUP):
         board.ko = None
@@ -67,6 +74,10 @@ def board_at(node: SGFNode) -> Board: # check FROM current node
 
 def format_point(point: Point) -> str:
     return COORDS_LETTERS[point.x] + COORDS_LETTERS[point.y]
+
+def is_pass(node: SGFNode, color: Color, size: int) -> bool:
+    values = node.get(color.value)
+    return bool(values) and parse_point(values[0], size) == None
 
 def toggle_setup_stone(node: SGFNode, point: Point, color: Color, size: int) -> None:
     before = board_at(node.parent) if node.parent != None else Board(size)

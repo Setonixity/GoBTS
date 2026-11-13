@@ -44,11 +44,13 @@ def play(board:Board, point: Point, color: Color):
                 for stone in group:
                     board.set(stone, None) 
                 captured |= group
+    board.captures[color] += len(captured)
 
     group, liberties = group_and_liberties(board, point)
     if not liberties:
         for stone in group:
             board.set(stone, None)
+        board.captures[color.switch()] += len(group)
 
     is_ko = len(captured) == 1 and len(group) == 1 and len(liberties) == 1
     board.ko = list(captured)[0] if is_ko else None
