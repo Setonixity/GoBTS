@@ -104,3 +104,6 @@
 - (client) actionbar
 - (client) pass & score button
 - (core) go scorer by lightvector implementation
+
+### Fixed
+- (client) svg resizing lag

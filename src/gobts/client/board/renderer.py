@@ -31,6 +31,12 @@ class BoardRenderer:
 
         self._surround_tile = pygame.image.load(theme.surround_texture) if theme.surround_texture != None else None
 
+        screen_px = max(height for _, height in pygame.display.get_desktop_sizes())
+        svg_size = (screen_px, screen_px)
+        self._background_svg = pygame.image.load_sized_svg(theme.background_image, svg_size).convert_alpha() if theme.background_image != None else None
+        self._black_svg = pygame.image.load_sized_svg(theme.black_stone_image, svg_size).convert_alpha() if theme.black_stone_image != None else None
+        self._white_svg = pygame.image.load_sized_svg(theme.white_stone_image, svg_size).convert_alpha() if theme.white_stone_image != None else None
+
         self._base: pygame.Surface|None = None
         self._cached_base_key: tuple|None = None
         self._clear_cache: dict[float, pygame.Surface] = {}
@@ -176,13 +182,13 @@ class BoardRenderer:
         theme = self.theme
         edge_color = theme.stone_edge_rgb
         fill_color = theme.black_rgb if color == Color.BLACK else theme.white_rgb
-        image = theme.black_stone_image if color == Color.BLACK else theme.white_stone_image
+        svg = self._black_svg if color == Color.BLACK else self._white_svg
         sprite = self._sprite_cache.get((color, radius))
-        if sprite == None and image != None:
+        if sprite == None and svg != None:
             size = radius*2 + 1
             ss_size = size*SUPERSAMPLE
             big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
-            stone = pygame.image.load_sized_svg(image, (radius*2*SUPERSAMPLE, radius*2*SUPERSAMPLE))
+            stone = fit_scale(svg, (radius*2*SUPERSAMPLE, radius*2*SUPERSAMPLE))
             big.blit(stone, stone.get_rect(center=(ss_size/2, ss_size/2)))
             sprite = pygame.transform.smoothscale(big, (size, size))
             self._sprite_cache[(color, radius)] = sprite
@@ -277,8 +283,8 @@ class BoardRenderer:
                 pygame.draw.rect(base, theme.background_rgb, layout.rect)
             else:
                 base.fill(theme.background_rgb)
-            if theme.background_image != None:
-                background = pygame.image.load_sized_svg(theme.background_image, layout.rect.size)
+            if self._background_svg != None:
+                background = fit_scale(self._background_svg, layout.rect.size)
                 base.blit(background, background.get_rect(center=layout.rect.center))
             self._base = base
         return self._base
@@ -391,6 +397,9 @@ def triangle_points(center: tuple[float, float], radius: float) -> list[tuple[fl
     x, y = center
     half_base = radius * 3**0.5 / 2
     return [(x, y - radius), (x + half_base, y + radius/2), (x - half_base, y + radius/2)]
+
+def fit_scale(surface: pygame.Surface, size: tuple[int, int]) -> pygame.Surface:
+    return pygame.transform.smoothscale(surface, surface.get_rect().fit((0, 0, *size)).size)
 
 # board = Board(19)
 # board.set(Point(0,0), Color.BLACK)

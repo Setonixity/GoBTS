@@ -39,7 +39,7 @@ class ClientApp:
         self.size = size
         self.board = Board(size)
         self.theme_names = Theme.available_themes()
-        self.theme_name: str|None = None
+        self.theme_name: str|None = "goban"
         self.theme = self.load_theme(self.theme_name)
         self.show_panel = True
         self.show_tree = True
@@ -310,7 +310,7 @@ class ClientApp:
             ]),
             Menu("Themes", [
                 MenuItem("Reload Themes Folder", self.reload_themes),
-                MenuItem("default", lambda: self.set_theme(None), checked=lambda: self.theme_name == None),
+                MenuItem("classic", lambda: self.set_theme(None), checked=lambda: self.theme_name == None),
                 *(MenuItem(name, lambda name=name: self.set_theme(name), checked=lambda name=name: name == self.theme_name) for name in self.theme_names)
             ])
         ], font, theme.menu)
