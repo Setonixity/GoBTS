@@ -1,15 +1,15 @@
 from __future__ import annotations
-import math
+
 from pathlib import Path
+import math
 import random
 
 import pygame
 
-from gobts.client.board.layout import BoardLayout, Color, Point, Board
+from gobts.client.board.layout import BoardLayout
+from gobts.client.sprites import SUPERSAMPLE, centered_canvas, downsample
 from gobts.client.theme import BoardTheme, RGB
-from gobts.core.board import Marker
-
-SUPERSAMPLE = 8
+from gobts.core.board import Board, Color, Marker, Point
 
 class BoardRenderer:
 
@@ -56,11 +56,9 @@ class BoardRenderer:
         base = self.make_base_sprite(surface.get_size())
         surface.blit(base, (0, 0))
 
-        # grid
         for i in range(size):
             pygame.draw.line(surface, theme.line_rgb, layout.to_pixel(Point(i, 0)), layout.to_pixel(Point(i, size-1)), layout.line_width)
             pygame.draw.line(surface, theme.line_rgb, layout.to_pixel(Point(0, i)), layout.to_pixel(Point(size-1, i)), layout.line_width)
-        # star points
         star_radius = max(theme.min_star_radius, round(layout.spacing * theme.star_radius))
         star = self.make_star_sprite(star_radius)
         for point in star_points(size):
@@ -149,7 +147,7 @@ class BoardRenderer:
             return self.stone_sprites[key]
  
         theme = self.theme
-        big, center = supersample_canvas(radius)
+        big, center = centered_canvas(radius)
         svg = self._black_svg if color == Color.BLACK else self._white_svg
         if svg != None:
             stone = fit_scale(svg, (radius*2*SUPERSAMPLE, radius*2*SUPERSAMPLE))
@@ -168,7 +166,7 @@ class BoardRenderer:
         if radius in self.star_sprites:
             return self.star_sprites[radius]
  
-        big, center = supersample_canvas(radius)
+        big, center = centered_canvas(radius)
         pygame.draw.circle(big, self.theme.star_rgb, center, radius*SUPERSAMPLE)
  
         sprite = downsample(big)
@@ -181,7 +179,7 @@ class BoardRenderer:
             return self.marker_sprites[key]
 
         theme = self.theme
-        big, center = supersample_canvas(radius, blend_rgb=rgb)
+        big, center = centered_canvas(radius, blend_rgb=rgb)
         reach = radius*theme.marker_size*SUPERSAMPLE
         width = round(max(1, radius*theme.marker_width) * SUPERSAMPLE)
         if marker == Marker.CIRCLE:
@@ -209,7 +207,7 @@ class BoardRenderer:
         font_size = max(1, round(radius*self.theme.label_size))
         if font_size not in self.label_fonts:
             self.label_sprites[font_size] = pygame.font.Font(self.theme.label_font, font_size)
-        image = self.label_fonts[font_size].render(text, True, rgb)
+        image = self.label_sprites[font_size].render(text, True, rgb)
 
         sprite = image.subsurface(image.get_bounding_rect()).copy()
         self.label_sprites[key] = sprite
@@ -219,7 +217,7 @@ class BoardRenderer:
         if radius in self.clear_masks:
             return self.clear_masks[radius]
         
-        big, center = supersample_canvas(radius, blend_rgb=(255, 255, 255))
+        big, center = centered_canvas(radius, blend_rgb=(255, 255, 255))
         pygame.draw.circle(big, (255, 255, 255, 255), center, radius*SUPERSAMPLE)
 
         sprite = downsample(big)
@@ -370,17 +368,3 @@ def load_svg(path: str|Path|None, size: tuple[int, int]) -> pygame.Surface|None:
     if path == None:
         return None
     return pygame.image.load_sized_svg(path, size).convert_alpha()
-
-def supersample_canvas(radius: float, blend_rgb: RGB = (0, 0, 0)) -> tuple[pygame.Surface, tuple[float, float]]:
-    size = (int(radius*2) + 1) * SUPERSAMPLE
-    big = pygame.Surface((size, size), pygame.SRCALPHA)
-    big.fill((*blend_rgb, 0))
-    return big, (size/2, size/2)
- 
-def downsample(big: pygame.Surface) -> pygame.Surface:
-    return pygame.transform.smoothscale(big, (big.get_width() // SUPERSAMPLE, big.get_height() // SUPERSAMPLE))
-
-# board = Board(19)
-# board.set(Point(0,0), Color.BLACK)
-# board.set(Point(2,2), Color.WHITE)
-# BoardRenderer().draw_ascii(board)

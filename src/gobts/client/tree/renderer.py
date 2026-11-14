@@ -7,8 +7,7 @@ from gobts.client.tree.layout import TreeLayout
 from gobts.core.board import Color
 from gobts.sgf.node import SGFNode
 from gobts.client.theme import RGB, TreeTheme
-
-SUPERSAMPLE = 8
+from gobts.client.sprites import SUPERSAMPLE, centered_canvas, downsample
 
 class TreeRenderer:
 
@@ -73,26 +72,22 @@ class TreeRenderer:
 
     def make_node_sprite(self, rgb: RGB, edge_rgb: RGB, image: Path|None = None) -> pygame.Surface:
         radius, edge_width = self.theme.node_radius, self.theme.node_edge_width
-        size = radius*2 + 1
-        ss_size = size*SUPERSAMPLE
-        big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
         if image != None:
+            big, center = centered_canvas(radius)
             node = pygame.image.load_sized_svg(image, (radius*2*SUPERSAMPLE, radius*2*SUPERSAMPLE))
-            big.blit(node, node.get_rect(center=(ss_size/2, ss_size/2))) # same diameter as the drawn circle
-            return pygame.transform.smoothscale(big, (size, size))
-        big.fill((*edge_rgb, 0))
-        pygame.draw.circle(big, edge_rgb, (ss_size/2, ss_size/2), radius*SUPERSAMPLE)
-        pygame.draw.circle(big, rgb, (ss_size/2, ss_size/2), radius*SUPERSAMPLE - edge_width*SUPERSAMPLE)
-        return pygame.transform.smoothscale(big, (size, size))
+            big.blit(node, node.get_rect(center=center))
+        else:
+            big, center = centered_canvas(radius, blend_rgb=edge_rgb)
+            pygame.draw.circle(big, edge_rgb, center, radius*SUPERSAMPLE)
+            pygame.draw.circle(big, rgb, center, radius*SUPERSAMPLE - edge_width*SUPERSAMPLE)
+        return downsample(big)
 
     def make_highlight_sprite(self) -> pygame.Surface:
         theme = self.theme
-        size = theme.highlight_radius*2 + 1
-        ss_size = size*SUPERSAMPLE
-        big = pygame.Surface((ss_size, ss_size), pygame.SRCALPHA)
+        big, center = centered_canvas(theme.highlight_radius, blend_rgb=theme.highlight_rgb)
         big.fill((*theme.highlight_rgb, 0))
-        pygame.draw.rect(big, theme.highlight_rgb, (0, 0, ss_size, ss_size), border_radius=theme.highlight_corner*SUPERSAMPLE)
-        return pygame.transform.smoothscale(big, (size, size))
+        pygame.draw.rect(big, theme.highlight_rgb, big.get_rect(), border_radius=theme.highlight_corner*SUPERSAMPLE)
+        return downsample(big)
 
     def draw_line(self, surface: pygame.Surface, rgb: RGB, start: tuple[float, float], end: tuple[float, float]):
         pygame.draw.line(surface, rgb, start, end, self.theme.line_width)

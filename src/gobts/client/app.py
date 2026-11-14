@@ -3,7 +3,8 @@ from __future__ import annotations
 from gobts.client.actionbar.action import Action
 from gobts.client.actionbar.layout import ActionBarLayout
 from gobts.client.actionbar.renderer import ActionBarRenderer
-from gobts.client.board import *
+from gobts.client.board.layout import BoardLayout
+from gobts.client.board.renderer import BoardRenderer
 from gobts.client.panel.layout import PanelLayout
 from gobts.client.panel.renderer import PanelRenderer
 from gobts.client.sound import SoundPlayer
@@ -13,13 +14,15 @@ from gobts.client.toolbar.renderer import ToolbarRenderer
 from gobts.client.toolbar.tool import Tool
 from gobts.client.tree.layout import TreeLayout
 from gobts.client.tree.renderer import TreeRenderer
-from gobts.client.ui import *
-from gobts.core import *
-from gobts.core import scoring
-from gobts.core.board import Label, Marker
+from gobts.client.ui.menu import Menu, MenuItem
+from gobts.client.ui.menubar import MenuBar
+from gobts.client.ui.renderer import UIRenderer
+from gobts.core.board import Board, Color, Label, Marker, Point
 from gobts.sgf.node import SGFNode
 
+import gobts.client.ui.dialogs as dialogs
 import gobts.core.rules as rules
+import gobts.core.scoring as scoring
 import gobts.sgf.converter as converter
 import gobts.sgf.parser as parser
 import gobts.sgf.writer as writer
@@ -27,15 +30,21 @@ import gobts.sgf.writer as writer
 import pygame
 from pygame._sdl2.video import Window
 
-WINDOW_TITLE = "GO TO FUCKING SLEEP"
-TREE_WIDTH = 240
-WINDOW_SIZE = (800 + TREE_WIDTH, 822)
+WINDOW_TITLE = "GOBTS - Go: Back To Sleep"
+PANEL_WIDTH = 240
+WINDOW_SIZE = (800 + PANEL_WIDTH, 822)
 FPS = 60
 
 REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPOSED, pygame.MOUSEMOTION}
 
 class ClientApp:
     def __init__(self, size: int = 19):
+        pygame.init()
+        self.window = Window(WINDOW_TITLE, WINDOW_SIZE, resizable=True)
+        pygame.key.set_repeat(300, 50)
+        self.maximized = False
+        self.layout_size = None
+
         self.size = size
         self.board = Board(size)
         self.theme_names = Theme.available_themes()
@@ -46,92 +55,100 @@ class ClientApp:
         self.show_toolbar = True
         self.tool: Tool|None = None
         self.new_game()
-
-    def run(self):
-        pygame.init()
-        self.window = Window(WINDOW_TITLE, WINDOW_SIZE, resizable=True)
-        screen = self.window.get_surface()
-        pygame.key.set_repeat(300, 50)
-        clock = pygame.time.Clock()
-
-        self.layout_size = None
-        self.maximized = False
         self.build_ui()
 
+    def run(self):
+        clock = pygame.time.Clock()
         running = True
         needs_redraw = True
         while running:
-            if not needs_redraw:
-                events = [pygame.event.wait(), *pygame.event.get()]
-            else:
+            if needs_redraw:
                 events = pygame.event.get()
+            else:
+                events = [pygame.event.wait(), *pygame.event.get()]
 
             for event in events:
-                if self.menubar.handle_event(event):
-                    needs_redraw = True
-                    continue
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type == pygame.WINDOWMAXIMIZED:
-                    self.maximized = True
-                elif event.type == pygame.WINDOWRESTORED:
-                    self.maximized = False
-                elif event.type in REDRAW_EVENTS:
-                    needs_redraw = True
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    node = self.t_renderer.layout.to_node(*event.pos)
-                    tool = self.tb_renderer.layout.to_tool(*event.pos)
-                    action = self.ab_renderer.layout.to_action(*event.pos)
-                    if node != None:
-                        self.go_to(node)
-                    elif tool != None:
-                        self.tool = None if tool == self.tool else tool
-                    elif action != None:
-                        self.on_action(action)
-                    elif self.tool == None:
-                        self.on_click(self.b_renderer.layout.to_point(*event.pos))
-                    else:
-                        self.on_edit(self.b_renderer.layout.to_point(*event.pos), self.tool.left)
-                    needs_redraw = True
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-                    if self.tool != None:
-                        self.on_edit(self.b_renderer.layout.to_point(*event.pos), self.tool.right)
-                        needs_redraw = True
-                elif event.type == pygame.MOUSEWHEEL:
-                    if self.t_renderer.layout.rect.collidepoint(pygame.mouse.get_pos()):
-                        self.on_scroll(event.y)
-                        needs_redraw = True
-                elif event.type == pygame.KEYDOWN:
-                    self.on_key(event.key)
+                elif self.handle_event(event):
                     needs_redraw = True
 
             if needs_redraw:
-                screen = self.window.get_surface()
-                if screen.get_size() != self.layout_size:
-                    self.layout_size = screen.get_size()
-                    self.b_renderer.layout, self.p_renderer.layout, self.t_renderer.layout, self.tb_renderer.layout, self.ab_renderer.layout = self.fit_layouts(self.layout_size)
-                ghost_preview = None
-                if self.tool == None and pygame.mouse.get_focused():
-                    point = self.b_renderer.layout.to_point(*pygame.mouse.get_pos())
-                    if point != None and rules.is_legal(self.board, point, self.color_to_play):
-                        ghost_preview = (point, self.color_to_play)
-                territory = self.score.territory if self.score != None else None
-                self.b_renderer.draw(screen, converter.markers_at(self.node, self.size), converter.labels_at(self.node, self.size), ghost_preview, territory)
-                if self.show_panel:
-                    self.p_renderer.draw(screen)
-                    if self.show_tree:
-                        self.t_renderer.draw(screen, self.node)
-                    if self.show_toolbar:
-                        self.tb_renderer.draw(screen, self.tool)
-                    self.ab_renderer.draw(screen, self.score.result if self.score != None else None)
-                self.ui_renderer.draw(screen)
-                self.window.flip()
-                needs_redraw = self.b_renderer.animating
+                self.draw()
+                needs_redraw = self.board_renderer.animating
                 clock.tick(FPS)
             
         pygame.quit()
 
-    def on_click(self, point: Point|None, button: int = 1):
+    def handle_event(self, event: pygame.event.Event) -> bool:
+        if self.menubar.handle_event(event):
+            return True
+        elif event.type == pygame.WINDOWMAXIMIZED:
+            self.maximized = True
+        elif event.type == pygame.WINDOWRESTORED:
+            self.maximized = False
+        elif event.type in REDRAW_EVENTS:
+            return True
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            node = self.tree_renderer.layout.to_node(*event.pos)
+            tool = self.toolbar_renderer.layout.to_tool(*event.pos)
+            action = self.actionbar_renderer.layout.to_action(*event.pos)
+            if node != None:
+                self.go_to(node)
+            elif tool != None:
+                self.tool = None if tool == self.tool else tool
+            elif action != None:
+                self.on_action(action)
+            elif self.tool == None:
+                self.on_play(self.board_renderer.layout.to_point(*event.pos))
+            else:
+                self.on_edit(self.board_renderer.layout.to_point(*event.pos), self.tool.left)
+            return True
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+            if self.tool != None:
+                self.on_edit(self.board_renderer.layout.to_point(*event.pos), self.tool.right)
+                return True
+        elif event.type == pygame.MOUSEWHEEL:
+            if self.tree_renderer.layout.rect.collidepoint(pygame.mouse.get_pos()):
+                self.on_scroll(event.y)
+                return True
+        elif event.type == pygame.KEYDOWN:
+            self.on_key(event.key)
+            return True
+
+    def draw(self):
+        screen = self.window.get_surface()
+        if screen.get_size() != self.layout_size:
+            self.refit_layouts(screen.get_size())       
+
+        markers = converter.markers_at(self.node, self.size)
+        labels = converter.labels_at(self.node, self.size)
+        territory = self.score.territory if self.score != None else None
+        self.board_renderer.draw(screen, markers, labels, self.ghost_preview(), territory)
+
+        if self.show_panel:
+            self.panel_renderer.draw(screen)
+            if self.show_tree:
+                self.tree_renderer.draw(screen, self.node)
+            if self.show_toolbar:
+                self.toolbar_renderer.draw(screen, self.tool)
+            self.actionbar_renderer.draw(screen, self.score.result if self.score != None else None)
+        self.ui_renderer.draw(screen)
+        self.window.flip()
+
+    def ghost_preview(self) -> tuple[Point, Color]|None:
+        if self.tool != None or not pygame.mouse.get_focused():
+            return None
+        point = self.board_renderer.layout.to_point(*pygame.mouse.get_pos())
+        if point == None or not rules.is_legal(self.board, point, self.color_to_play):
+            return None
+        return (point, self.color_to_play)
+
+    def refit_layouts(self, window_size: tuple[int, int]):
+        self.layout_size = window_size
+        self.board_renderer.layout, self.panel_renderer.layout, self.tree_renderer.layout, self.toolbar_renderer.layout, self.actionbar_renderer.layout = self.fit_layouts(self.layout_size)
+
+    def on_play(self, point: Point|None):
         if point == None or not rules.is_legal(self.board, point, self.color_to_play):
             return
         id, value = self.color_to_play.value, converter.format_point(point)
@@ -149,7 +166,7 @@ class ClientApp:
             self.go_to(self.node.children[0])
         elif key in (pygame.K_LEFT, pygame.K_RIGHT):
             step = -1 if key == pygame.K_LEFT else 1
-            node = self.t_renderer.layout.row_neighbor(self.node, step)
+            node = self.tree_renderer.layout.row_neighbor(self.node, step)
             if node != None:
                 self.go_to(node)
 
@@ -204,7 +221,7 @@ class ClientApp:
         self.board = board
         self.size = board.size
         self.color_to_play = converter.next_color(node)
-        self.b_renderer.board = board
+        self.board_renderer.board = board
         self.node = node
         self.score = None
         self.layout_size = None
@@ -218,9 +235,8 @@ class ClientApp:
             node = list(root.main_line())[-1]
             self.go_to(node)
             self.root= root
-            
-        except:
-            dialogs.show_error("Could not open file", f"{path}")
+        except Exception as error:
+            dialogs.show_error("Could not open file", f"{path}\n{error}")
 
     def save_game(self, ask_path: bool = False):
         path = self.path
@@ -270,10 +286,10 @@ class ClientApp:
 
     def fit_layouts(self, window_size: tuple[int, int]) -> tuple[BoardLayout, PanelLayout, TreeLayout, ToolbarLayout, ActionBarLayout]:
         width, height = window_size
-        bar_h = self.menubar.layout.height
-        panel_w = self.theme.panel.width if self.show_panel else 0
-        board_layout = BoardLayout.fit(self.size, width - panel_w, height - bar_h, self.theme.board, top=bar_h)
-        panel_layout = PanelLayout.fit(pygame.Rect(width - panel_w, bar_h, panel_w, height - bar_h), self.show_tree, self.show_toolbar, self.theme.toolbar.height, self.theme.actionbar.height)
+        bar_height = self.menubar.layout.height
+        panel_width = self.theme.panel.width if self.show_panel else 0
+        board_layout = BoardLayout.fit(self.size, width - panel_width, height - bar_height, self.theme.board, top=bar_height)
+        panel_layout = PanelLayout.fit(pygame.Rect(width - panel_width, bar_height, panel_width, height - bar_height), self.show_tree, self.show_toolbar, self.theme.toolbar.height, self.theme.actionbar.height)
         tree_layout = TreeLayout.fit(self.root, self.node, panel_layout.tree_rect, self.theme.tree) 
         toolbar_layout = ToolbarLayout.fit(panel_layout.toolbar_rect, self.theme.toolbar)
         actionbar_layout = ActionBarLayout.fit(panel_layout.actionbar_rect, self.theme.actionbar)
@@ -329,16 +345,16 @@ class ClientApp:
         theme = self.theme
         self.build_menubar()
         board_layout, panel_layout, tree_layout, toolbar_layout, actionbar_layout = self.fit_layouts(self.window.get_surface().get_size())
-        self.b_renderer = BoardRenderer(self.board, board_layout, theme.board)
-        self.p_renderer = PanelRenderer(panel_layout, theme.panel)
-        self.t_renderer = TreeRenderer(tree_layout, theme.tree)
-        self.tb_renderer = ToolbarRenderer(toolbar_layout, theme.toolbar)
-        self.ab_renderer = ActionBarRenderer(actionbar_layout, theme.actionbar)
+        self.board_renderer = BoardRenderer(self.board, board_layout, theme.board)
+        self.panel_renderer = PanelRenderer(panel_layout, theme.panel)
+        self.tree_renderer = TreeRenderer(tree_layout, theme.tree)
+        self.toolbar_renderer = ToolbarRenderer(toolbar_layout, theme.toolbar)
+        self.actionbar_renderer = ActionBarRenderer(actionbar_layout, theme.actionbar)
         self.sounds = SoundPlayer(theme.sound)
         self.layout_size = None
 
     def clear_annotations(self):
         converter.clear_annotations(self.node)
 
-
-ClientApp().run()
+if __name__ == "__main__":
+    ClientApp().run()
