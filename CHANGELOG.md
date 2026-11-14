@@ -104,6 +104,8 @@
 - (client) actionbar
 - (client) pass & score button
 - (core) go scorer by lightvector implementation
+- (client) clear annotation
+- (client) togglable toolbar
 
 ### Fixed
 - (client) svg resizing lag

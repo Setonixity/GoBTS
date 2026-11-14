@@ -43,6 +43,7 @@ class ClientApp:
         self.theme = self.load_theme(self.theme_name)
         self.show_panel = True
         self.show_tree = True
+        self.show_toolbar = True
         self.tool: Tool|None = None
         self.new_game()
 
@@ -120,7 +121,8 @@ class ClientApp:
                     self.p_renderer.draw(screen)
                     if self.show_tree:
                         self.t_renderer.draw(screen, self.node)
-                    self.tb_renderer.draw(screen, self.tool)
+                    if self.show_toolbar:
+                        self.tb_renderer.draw(screen, self.tool)
                     self.ab_renderer.draw(screen, self.score.result if self.score != None else None)
                 self.ui_renderer.draw(screen)
                 self.window.flip()
@@ -260,12 +262,18 @@ class ClientApp:
         self.show_tree = not self.show_tree
         self.layout_size = None
 
+    def toggle_toolbar(self):
+        self.show_toolbar = not self.show_toolbar
+        if not self.show_toolbar:
+            self.tool = None
+        self.layout_size = None
+
     def fit_layouts(self, window_size: tuple[int, int]) -> tuple[BoardLayout, PanelLayout, TreeLayout, ToolbarLayout, ActionBarLayout]:
         width, height = window_size
         bar_h = self.menubar.layout.height
         panel_w = self.theme.panel.width if self.show_panel else 0
         board_layout = BoardLayout.fit(self.size, width - panel_w, height - bar_h, self.theme.board, top=bar_h)
-        panel_layout = PanelLayout.fit(pygame.Rect(width - panel_w, bar_h, panel_w, height - bar_h), self.show_tree, self.theme.toolbar.height, self.theme.actionbar.height)
+        panel_layout = PanelLayout.fit(pygame.Rect(width - panel_w, bar_h, panel_w, height - bar_h), self.show_tree, self.show_toolbar, self.theme.toolbar.height, self.theme.actionbar.height)
         tree_layout = TreeLayout.fit(self.root, self.node, panel_layout.tree_rect, self.theme.tree) 
         toolbar_layout = ToolbarLayout.fit(panel_layout.toolbar_rect, self.theme.toolbar)
         actionbar_layout = ActionBarLayout.fit(panel_layout.actionbar_rect, self.theme.actionbar)
@@ -302,11 +310,12 @@ class ClientApp:
                 MenuItem("Save Game As", lambda: self.save_game(ask_path=True))
             ]),
             Menu("Edit", [
-                MenuItem("Copy", lambda: print('TEST'))
+                MenuItem("Clear Annotations", self.clear_annotations)
             ]),
             Menu("View", [
                 MenuItem("Toggle Side Panel", self.toggle_panel, checked=lambda: self.show_panel),
-                MenuItem("Toggle Game Tree", self.toggle_tree, checked=lambda: self.show_tree)
+                MenuItem("Toggle Game Tree", self.toggle_tree, checked=lambda: self.show_tree),
+                MenuItem("Toggle Toolbar", self.toggle_toolbar, checked=lambda: self.show_toolbar)
             ]),
             Menu("Themes", [
                 MenuItem("Reload Themes Folder", self.reload_themes),
@@ -327,6 +336,9 @@ class ClientApp:
         self.ab_renderer = ActionBarRenderer(actionbar_layout, theme.actionbar)
         self.sounds = SoundPlayer(theme.sound)
         self.layout_size = None
+
+    def clear_annotations(self):
+        converter.clear_annotations(self.node)
 
 
 ClientApp().run()

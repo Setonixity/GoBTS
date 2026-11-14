@@ -172,3 +172,8 @@ def next_color(node: SGFNode) -> Color:
             return Color.BLACK
         current = current.parent
     return Color.BLACK
+
+def clear_annotations(node: SGFNode) -> None:
+    for marker in Marker:
+        node.properties.pop(marker.value, None)
+    node.properties.pop(LABEL, None)
