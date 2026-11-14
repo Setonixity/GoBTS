@@ -113,8 +113,10 @@
 ## [0.0.9] - CODE CLEANUP - 14-11-2026
 ### Added
 - (client) supersampling helper methods in BoardRenderer
+- (client) sprite handler
 
 ### Changed
 - (client) '_' naming convention for private values
 - (client) stone, star, marker, label, clear_masks all now depend on one sprites radius cache
 - (client) x-y based rendering positions to rect-based in BoardRenderer
+- (client) app.py helper methods

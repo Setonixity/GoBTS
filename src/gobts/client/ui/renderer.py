@@ -4,8 +4,7 @@ import pygame
 
 from gobts.client.theme import MenuTheme
 from gobts.client.ui.menubar import MenuBar
-
-SUPERSAMPLE = 8
+from gobts.client.sprites import SUPERSAMPLE, downsample, make_svg_icon, supersample_canvas
 
 class UIRenderer:
 
@@ -13,8 +12,8 @@ class UIRenderer:
         self.menubar = menubar
         self.font = font
         self.theme = theme
-        self._dropdown_cache: dict[tuple[int, int], pygame.Surface] = {}
-        self.check = self.make_check_sprite()
+        self.dropdown_cache: dict[tuple[int, int], pygame.Surface] = {}
+        self.check = make_svg_icon(theme.check_icon, (theme.check_size, theme.check_size), theme.text_rgb)
 
     def draw(self, surface: pygame.Surface):
         menubar = self.menubar
@@ -43,23 +42,13 @@ class UIRenderer:
                 self.blit_text(surface, item.label, theme.text_rgb, midleft=(rect.x + layout.label_x[open_i], rect.centery + theme.text_nudge))
 
     def make_dropdown_sprite(self, size: tuple[int, int]) -> pygame.Surface:
-        sprite = self._dropdown_cache.get(size)
+        sprite = self.dropdown_cache.get(size)
         if sprite == None:
             theme = self.theme
-            width, height = size
-            big = pygame.Surface((width*SUPERSAMPLE, height*SUPERSAMPLE), pygame.SRCALPHA)
-            big.fill((*theme.dropdown_rgb, 0))
+            big = supersample_canvas(size, blend_rgb=theme.dropdown_rgb)
             pygame.draw.rect(big, theme.dropdown_rgb, big.get_rect(), border_radius=theme.dropdown_corner*SUPERSAMPLE)
-            sprite = pygame.transform.smoothscale(big, size)
-            self._dropdown_cache[size] = sprite
-        return sprite
-
-    def make_check_sprite(self) -> pygame.Surface:
-        theme = self.theme
-        size = (theme.check_size, theme.check_size)
-        sprite = pygame.image.load_sized_svg(theme.check_icon, size)
-        sprite.fill((0,0,0), special_flags=pygame.BLEND_RGB_MULT)
-        sprite.fill(theme.text_rgb, special_flags=pygame.BLEND_RGB_ADD)
+            sprite = downsample(big)
+            self.dropdown_cache[size] = sprite
         return sprite
 
     def blit_text(self, surface: pygame.Surface, text, color: pygame.Color, **position):
