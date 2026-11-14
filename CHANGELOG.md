@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.1] - 2-11-2026
+## [0.0.1] - FOUNDATION - 2-11-2026
 ### Added
 - setup project structure
 - README, CHANGELOG, and ARCHITECTURE
@@ -15,7 +15,7 @@
 - (client) jitter during window resizing
 - (client) inconsistent star point scaling
 
-## [0.0.2] - 4-11-2026
+## [0.0.2] - MENUBAR - 4-11-2026
 ### Added
 - (client) working menubar
 - (client) dropdown box, and callable menuitems
@@ -34,7 +34,7 @@
 ### Changed
 - (core) moved play() to core/rules.py
 
-## [0.0.3] - 5-11-2026
+## [0.0.3] - GAME TREE - 5-11-2026
 ### Added
 - (client) a game tree viewer
 - (client) up-down traversal keybinds
@@ -44,7 +44,7 @@
 - (client) switched color changing marker for bg highlight
 - (client) root node marker.
 
-## [0.0.4] - 6-11-2026
+## [0.0.4] - SGF WRITER - 6-11-2026
 ### Added
 - (sgf) sgf writer
 - (client) save game dialog box
@@ -57,7 +57,7 @@
 ### Fixed
 - (Client) window resizing when enough horizontal space for tree
 
-## [0.0.5] - 8-11-2026
+## [0.0.5] - DECOUPLING - 8-11-2026
 ### Added
 - (client) theme default values
 - (client) rounded dropbox 
@@ -69,7 +69,7 @@
 - (client) default menu sizes
 - (client) built-in default font and icons
 
-## [0.0.6] - 10-11-2026
+## [0.0.6] - ANNOTATIONS & KO - 10-11-2026
 ### Added
 - (core) ko and self-capture rule
 - (client) side-panel to store other widgets along with game tree
@@ -81,7 +81,7 @@
 ### Fixed
 - (client) using pygame depecrated methods in pygame-ce
 
-## [0.0.7] - 12-11-2026
+## [0.0.7] - THEMES - 12-11-2026
 ### Added
 - (client) theme loader
 - (client) optional themes svg for stones, tree nodes, surround img, and board bg 
@@ -99,7 +99,7 @@
 - (client) stone border calculation always being based on texture size
 - (client) resolve_in recognising only files
 
-## [0.0.8] - 14-11-2026
+## [0.0.8] - PASS & SCORING - 14-11-2026
 ### Added
 - (client) actionbar
 - (client) pass & score button
@@ -109,3 +109,12 @@
 
 ### Fixed
 - (client) svg resizing lag
+
+## [0.0.9] - CODE CLEANUP - 14-11-2026
+### Added
+- (client) supersampling helper methods in BoardRenderer
+
+### Changed
+- (client) '_' naming convention for private values
+- (client) stone, star, marker, label, clear_masks all now depend on one sprites radius cache
+- (client) x-y based rendering positions to rect-based in BoardRenderer
