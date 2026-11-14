@@ -3,7 +3,7 @@ from dataclasses import field, fields
 from typing import Annotated, Optional
 from pydantic.dataclasses import dataclass
 from pathlib import Path
-from pydantic import AfterValidator, TypeAdapter, ValidationInfo, field_validator
+from pydantic import AfterValidator, TypeAdapter, ValidationInfo
 
 RGB = tuple[int, int, int]
 DATA_DIR = Path(__file__).parents[3] / "data" / "gobts" # from src/gobts/client
@@ -12,7 +12,7 @@ THEMES_DIR =  DATA_DIR / "themes"
 IMAGES_DIR = DATA_DIR / "images"
 SOUNDS_DIR = DATA_DIR / "sounds"
 
-def _resolve_in(base_dir: Path):
+def resolve_in(base_dir: Path):
     def validator(value: str | Path, info: ValidationInfo) -> Path:
         path = Path(value)
         if path.is_absolute():
@@ -23,9 +23,9 @@ def _resolve_in(base_dir: Path):
         return base_dir / path 
     return validator
 
-FontPath = Annotated[str | Path, AfterValidator(_resolve_in(FONTS_DIR))]
-ImagePath = Annotated[str | Path, AfterValidator(_resolve_in(IMAGES_DIR))]
-SoundPath = Annotated[str | Path, AfterValidator(_resolve_in(SOUNDS_DIR))]
+FontPath = Annotated[str | Path, AfterValidator(resolve_in(FONTS_DIR))]
+ImagePath = Annotated[str | Path, AfterValidator(resolve_in(IMAGES_DIR))]
+SoundPath = Annotated[str | Path, AfterValidator(resolve_in(SOUNDS_DIR))]
 
 @dataclass
 class BoardTheme():
@@ -107,8 +107,6 @@ class ToolbarTheme:
     hover_rgb: Optional[RGB] = (60, 60, 60)
     selected_rgb: Optional[RGB] = (75, 75, 75)
     icon_rgb: Optional[RGB] = (255, 255, 255)
-    # node_rgb: RGB = (90, 90, 90) # blank node icon
-    # node_edge_rgb: RGB = (150, 150, 150)
 
     setup_icon: ImagePath = IMAGES_DIR / "setup.svg"
     triangle_cross_icon: ImagePath = IMAGES_DIR / "triangle-cross.svg"
@@ -202,6 +200,3 @@ class Theme:
             (p.name for p in THEMES_DIR.iterdir() if p.is_dir() and not p.name.startswith((".", "_"))),
             key=str.lower
         )
-
-# theme = Theme.from_dir("ocean")
-# print(theme.board.black_stone_image)

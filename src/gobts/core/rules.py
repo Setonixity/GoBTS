@@ -55,12 +55,3 @@ def play(board:Board, point: Point, color: Color):
     is_ko = len(captured) == 1 and len(group) == 1 and len(liberties) == 1
     board.ko = list(captured)[0] if is_ko else None
     return captured
-
-# board = Board()
-# board.set(Point(3,3), Color.WHITE)
-# BoardRenderer().draw_ascii(board)
-# while True:
-#     _play = input()
-#     _point = Point(int(_play[0]), int(_play[1]))
-#     play(board, _point, Color.BLACK)
-#     BoardRenderer().draw_ascii(board)

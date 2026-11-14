@@ -33,15 +33,15 @@ class Board():
 
     def __init__(self, size: int = 19):
         self.size = size
-        self._grid: list[list[Color|None]] = [[None]*self.size for _ in range(self.size)]
+        self.grid: list[list[Color|None]] = [[None]*self.size for _ in range(self.size)]
         self.ko: Point|None = None
         self.captures: dict[Color, int] = {Color.BLACK: 0, Color.WHITE: 0}
 
     def get(self, point: Point) -> Color|None:
-        return self._grid[point.y][point.x]
+        return self.grid[point.y][point.x]
 
     def set(self, point: Point, color: Color|None):
-        self._grid[point.y][point.x] = color
+        self.grid[point.y][point.x] = color
 
     def contains(self, point: Point) -> bool:
         x, y = point
@@ -51,14 +51,14 @@ class Board():
         return self.get(point) == None
 
     def clear(self):
-        for y, row in enumerate(self._grid):
+        for y, row in enumerate(self.grid):
             for x, _ in enumerate(row):
                 self.set(Point(x, y), None)
         self.captures = {Color.BLACK: 0, Color.WHITE: 0}
 
     @property
     def stones(self) -> Iterator[Point, Color]:
-        for y, row in enumerate(self._grid):
+        for y, row in enumerate(self.grid):
             for x, color in enumerate(row):
                 if color:
                     yield Point(x, y), color
