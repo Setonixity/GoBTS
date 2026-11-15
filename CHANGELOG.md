@@ -125,3 +125,9 @@
 ### Added
 - (client) node comments and name box
 - (client) click to mark dead stones during scoring
+- (client) paths handler for built-in files, and user-files with platformdirs
+- (client) state storing current theme and game
+- (client) pyinstall executable builder on spec
+
+### Fixed
+- (client) open_game never set self.path

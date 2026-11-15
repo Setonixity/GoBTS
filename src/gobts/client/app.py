@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pathlib import Path
 
 from gobts.client.actionbar.action import Action
 from gobts.client.actionbar.layout import ActionBarLayout
@@ -9,7 +10,9 @@ from gobts.client.comment.layout import CommentLayout
 from gobts.client.comment.renderer import CommentRenderer
 from gobts.client.panel.layout import PanelLayout
 from gobts.client.panel.renderer import PanelRenderer
+from gobts.client.paths import USER_THEMES_DIR
 from gobts.client.sound import SoundPlayer
+from gobts.client.state import State
 from gobts.client.theme import Theme
 from gobts.client.toolbar.layout import ToolbarLayout
 from gobts.client.toolbar.renderer import ToolbarRenderer
@@ -49,16 +52,18 @@ class ClientApp:
 
         self.size = size
         self.board = Board(size)
+        self.state = State.load()
         self.theme_names = Theme.available_themes()
-        self.theme_name: str|None = "goban"
-        self.theme = self.load_theme(self.theme_name)
+        self.theme_name: str|None = None
+        self.theme = Theme()
         self.show_panel = True
         self.show_tree = True
         self.show_comment = True
         self.show_toolbar = True
         self.tool: Tool|None = None
         self.new_game()
-        self.build_ui()
+        self.set_theme(self.state.theme if self.state.theme in self.theme_names else None)
+        self.restore_game()
 
     def run(self):
         clock = pygame.time.Clock()
@@ -80,7 +85,8 @@ class ClientApp:
                 self.draw()
                 needs_redraw = self.board_renderer.animating
                 clock.tick(FPS)
-            
+
+        self.save_state()
         pygame.quit()
 
     def handle_event(self, event: pygame.event.Event) -> bool:
@@ -248,12 +254,33 @@ class ClientApp:
         if path == None:
             return
         try:
-            root = parser.load(path)[0]
-            node = list(root.main_line())[-1]
-            self.go_to(node)
-            self.root= root
+            self.load_game(path)
         except Exception as error:
             dialogs.show_error("Could not open file", f"{path}\n{error}")
+
+    def load_game(self, path: str|Path):
+        root = parser.load(path)[0]
+        node = list(root.main_line())[-1]
+        self.go_to(node)
+        self.root = root
+        self.path = path
+
+    def restore_game(self):
+        path = self.state.game
+        if path == None or not path.is_file():
+            return
+        try:
+            self.load_game(path)
+        except Exception: 
+            pass
+
+    def save_state(self):
+        self.state.theme = self.theme_name
+        self.state.game = Path(self.path) if self.path != None else None
+        try:
+            self.state.save()
+        except OSError: 
+            pass
 
     def save_game(self, ask_path: bool = False):
         path = self.path
@@ -320,6 +347,12 @@ class ClientApp:
     def load_theme(self, name: str|None) -> Theme:
         return Theme() if name == None else Theme.from_dir(name)
 
+    def open_themes_folder(self):
+        try:
+            dialogs.open_folder(USER_THEMES_DIR)
+        except OSError as error:
+            dialogs.show_error("Could not open themes folder", f"{USER_THEMES_DIR}\n{error}")
+
     def reload_themes(self):
         self.theme_names = Theme.available_themes()
         if self.theme_name in self.theme_names:
@@ -357,6 +390,7 @@ class ClientApp:
                 MenuItem("Toggle Toolbar", self.toggle_toolbar, checked=lambda: self.show_toolbar)
             ]),
             Menu("Themes", [
+                MenuItem("Open Themes Folder", self.open_themes_folder),
                 MenuItem("Reload Themes Folder", self.reload_themes),
                 MenuItem("classic", lambda: self.set_theme(None), checked=lambda: self.theme_name == None),
                 *(MenuItem(name, lambda name=name: self.set_theme(name), checked=lambda name=name: name == self.theme_name) for name in self.theme_names)
@@ -380,6 +414,3 @@ class ClientApp:
 
     def clear_annotations(self):
         converter.clear_annotations(self.node)
-
-if __name__ == "__main__":
-    ClientApp().run()

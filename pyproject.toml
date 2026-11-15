@@ -4,13 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gobts"
-version = "0.0.5"
+version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
     "pygame-ce>=2.5",
     "pydantic>=2.14",
     "numpy>=1.26",
+    "platformdirs>=4.0",
 ]
+
+[project.optional-dependencies]
+build = ["pyinstaller>=6.0"]
+
+[project.gui-scripts]
+gobts = "gobts.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

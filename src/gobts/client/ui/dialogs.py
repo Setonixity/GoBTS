@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
+import subprocess
+import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from typing import Callable, TypeVar
@@ -37,3 +41,22 @@ def keep_app_alive(root: tk.Tk):
 
 def show_error(title: str, message:str) -> None:
     run(lambda root: messagebox.showerror(title, message, parent=root))
+
+def open_folder(path: Path) -> None: # in the os file manager
+    path.mkdir(parents=True, exist_ok=True)
+    if sys.platform == "win32":
+        os.startfile(path)
+    elif sys.platform == "darwin":
+        subprocess.Popen(["open", path])
+    else:
+        subprocess.Popen(["xdg-open", path], env=system_env())
+
+def system_env() -> dict[str, str]:
+    env = dict(os.environ)
+    if getattr(sys, "frozen", False): 
+        original = env.pop("LD_LIBRARY_PATH_ORIG", None)
+        if original != None:
+            env["LD_LIBRARY_PATH"] = original
+        else:
+            env.pop("LD_LIBRARY_PATH", None)
+    return env

@@ -5,12 +5,10 @@ from pydantic.dataclasses import dataclass
 from pathlib import Path
 from pydantic import AfterValidator, TypeAdapter, ValidationInfo
 
+from gobts.client.paths import FONTS_DIR, IMAGES_DIR, SOUNDS_DIR, THEMES_DIR, USER_THEMES_DIR
+
 RGB = tuple[int, int, int]
-DATA_DIR = Path(__file__).parents[3] / "data" / "gobts" # from src/gobts/client
-FONTS_DIR =  DATA_DIR / "fonts"
-THEMES_DIR =  DATA_DIR / "themes"
-IMAGES_DIR = DATA_DIR / "images"
-SOUNDS_DIR = DATA_DIR / "sounds"
+THEME_DIRS = (USER_THEMES_DIR, THEMES_DIR) # user themes shadow built-in ones with the same name
 
 def resolve_in(base_dir: Path):
     def validator(value: str | Path, info: ValidationInfo) -> Path:
@@ -213,6 +211,14 @@ class Theme:
 
         return cls(**loaded)
 
+    @staticmethod
+    def find_dir(folder: str | Path) -> Path:
+        for themes_dir in THEME_DIRS:
+            if (themes_dir / folder).is_dir():
+                return themes_dir / folder
+        return THEMES_DIR / folder
+
+    @staticmethod
     def available_themes() -> list[str]:
         if not THEMES_DIR.is_dir():
             return []
