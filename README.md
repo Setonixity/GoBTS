@@ -5,13 +5,17 @@ Note: For Chula's ISE 2190101 Computer Programming Project. This is the second i
 
 ## Dependencies
 All PyPI dependencies listed in pyproject.toml 
-> pip install -e .
+```
+pip install -e .
+```
 
 This project vendors its goscoring algorithm from [lightvector](https://github.com/lightvector)'s
 [goscorer](https://github.com/lightvector/goscorer), vendored unmodified as core/goscorer.py (MIT License)
 
 ## Running
-``` python -m gobts```
+```
+python -m gobts
+```
 
 ## Building executables
 ```
