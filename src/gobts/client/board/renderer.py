@@ -31,6 +31,7 @@ class BoardRenderer:
         self.marker_sprites: dict[tuple[Marker, RGB, int], pygame.Surface] = {}
         self.label_sprites: dict[tuple[str, RGB, int], pygame.Surface] = {}
         self.label_fonts: dict[int, pygame.font.Font] = {}
+        self.dead_sprites: dict[tuple[Color, int], pygame.Surface] = {}
         self.clear_masks: dict[int, pygame.Surface] = {}
 
         self.base_sprite: pygame.Surface|None = None
@@ -45,7 +46,7 @@ class BoardRenderer:
     def animating(self) -> bool:
         return bool(self._slides)
 
-    def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], labels: dict[Point, str], ghost_preview: tuple[Point, Color]|None = None, territory: dict[Point, Color]|None = None):
+    def draw(self, surface: pygame.Surface, markers: dict[Point, Marker], labels: dict[Point, str], ghost_preview: tuple[Point, Color]|None = None, territory: dict[Point, Color]|None = None, dead: set[Point]|None = None):
         layout = self.layout
         theme = self.theme
         size = layout.size
@@ -69,7 +70,7 @@ class BoardRenderer:
         self.update_shifts()
         stones = sorted(self.board.stones, key=lambda stone: stone[0] in self._slides)
         for point, color in stones:
-            sprite = self.make_stone_sprite(color, radius)
+            sprite = self.make_dead_sprite(color, radius) if dead and point in dead else self.make_stone_sprite(color, radius)
             surface.blit(sprite, sprite.get_rect(center=self.stone_pixel(point)))
         
         annotations = [(point, self.make_marker_sprite(marker, self.annotation_rgb(point), radius)) for point, marker in markers.items()]
@@ -99,6 +100,7 @@ class BoardRenderer:
         self.marker_sprites.clear()
         self.label_sprites.clear()
         self.label_fonts.clear()
+        self.dead_sprites.clear()
         self.clear_masks.clear()
 
     def make_base_sprite(self, size: tuple[int, int]) -> pygame.Surface:
@@ -162,6 +164,16 @@ class BoardRenderer:
         self.stone_sprites[key] = sprite
         return sprite
 
+    def make_dead_sprite(self, color: Color, radius: int) -> pygame.Surface:
+        key = (color, radius)
+        if key in self.dead_sprites:
+            return self.dead_sprites[key]
+ 
+        sprite = self.make_stone_sprite(color, radius).copy()
+        sprite.set_alpha(self.theme.dead_alpha)
+        self.dead_sprites[key] = sprite
+        return sprite
+
     def make_star_sprite(self, radius: int) -> pygame.Surface:
         if radius in self.star_sprites:
             return self.star_sprites[radius]
@@ -206,12 +218,14 @@ class BoardRenderer:
 
         font_size = max(1, round(radius*self.theme.label_size))
         if font_size not in self.label_fonts:
-            self.label_sprites[font_size] = pygame.font.Font(self.theme.label_font, font_size)
-        image = self.label_sprites[font_size].render(text, True, rgb)
+            self.label_fonts[font_size] = pygame.font.Font(self.theme.label_font, font_size)
+        image = self.label_fonts[font_size].render(text, True, rgb)
 
         sprite = image.subsurface(image.get_bounding_rect()).copy()
         self.label_sprites[key] = sprite
         return sprite
+
+    
 
     def make_clear_mask(self, radius: float) -> pygame.Surface:
         if radius in self.clear_masks:

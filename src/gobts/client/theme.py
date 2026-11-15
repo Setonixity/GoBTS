@@ -69,6 +69,7 @@ class BoardTheme():
     white_territory_rgb: Optional[RGB] = (255, 255, 255)
     territory_alpha: Optional[int] = 110
     territory_size: Optional[float] = 1.0
+    dead_alpha: Optional[int] = 110
 
 @dataclass
 class PanelTheme:
@@ -107,6 +108,7 @@ class CommentTheme:
     field_rgb: Optional[RGB] = (33, 33, 33)
     text_rgb: Optional[RGB] = (255, 255, 255)
     hint_rgb: Optional[RGB] = (110, 110, 110) 
+    scrollbar_rgb: Optional[RGB] = (90, 90, 90)
  
     font: FontPath = FONTS_DIR / "Ubuntu-Regular.ttf"
     font_size: Optional[int] = 14
@@ -114,8 +116,9 @@ class CommentTheme:
  
     height: Optional[int] = 220
     name_height: Optional[int] = 26
-    pad: Optional[int] = 6 
-    text_pad: Optional[int] = 8 
+    text_pad: Optional[int] = 10 
+    scroll_lines: Optional[int] = 3 
+    scrollbar_width: Optional[int] = 3
 
 @dataclass
 class ToolbarTheme:

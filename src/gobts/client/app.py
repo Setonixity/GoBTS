@@ -102,7 +102,9 @@ class ClientApp:
                 self.tool = None if tool == self.tool else tool
             elif action != None:
                 self.on_action(action)
-            elif self.tool == None:
+            elif self.score != None:
+                self.on_mark_dead(self.board_renderer.layout.to_point(*event.pos))
+            elif self.tool == None and self.score == None:
                 self.on_play(self.board_renderer.layout.to_point(*event.pos))
             else:
                 self.on_edit(self.board_renderer.layout.to_point(*event.pos), self.tool.left)
@@ -112,9 +114,12 @@ class ClientApp:
                 self.on_edit(self.board_renderer.layout.to_point(*event.pos), self.tool.right)
                 return True
         elif event.type == pygame.MOUSEWHEEL:
+            mouse = pygame.mouse.get_pos()
             if self.tree_renderer.layout.rect.collidepoint(pygame.mouse.get_pos()):
                 self.on_scroll(event.y)
                 return True
+            elif self.comment_renderer.layout.rect.collidepoint(mouse):
+                return self.comment_renderer.layout.scroll_by(-event.y*self.theme.comment.scroll_lines)
         elif event.type == pygame.KEYDOWN:
             self.on_key(event.key)
             return True
@@ -127,7 +132,8 @@ class ClientApp:
         markers = converter.markers_at(self.node, self.size)
         labels = converter.labels_at(self.node, self.size)
         territory = self.score.territory if self.score != None else None
-        self.board_renderer.draw(screen, markers, labels, self.ghost_preview(), territory)
+        dead = self.score.dead if self.score != None else None
+        self.board_renderer.draw(screen, markers, labels, self.ghost_preview(), territory, dead)
 
         if self.show_panel:
             self.panel_renderer.draw(screen)
@@ -221,6 +227,12 @@ class ClientApp:
         else:
             self.score = scoring.territory_score(self.board, converter.komi(self.root))
 
+    def on_mark_dead(self, point: Point|None):
+        if point == None or self.board.is_empty(point):
+            return
+        dead = scoring.toggle_dead(self.board, self.score.dead, point)
+        self.score = scoring.territory_score(self.board, converter.komi(self.root), dead)
+
     def go_to(self, node: SGFNode):
         board = converter.board_at(node)
         self.board = board
@@ -283,6 +295,10 @@ class ClientApp:
         self.show_tree = not self.show_tree
         self.layout_size = None
 
+    def toggle_comment(self):
+        self.show_comment = not self.show_comment
+        self.layout_size = None
+
     def toggle_toolbar(self):
         self.show_toolbar = not self.show_toolbar
         if not self.show_toolbar:
@@ -337,6 +353,7 @@ class ClientApp:
             Menu("View", [
                 MenuItem("Toggle Side Panel", self.toggle_panel, checked=lambda: self.show_panel),
                 MenuItem("Toggle Game Tree", self.toggle_tree, checked=lambda: self.show_tree),
+                MenuItem("Toggle Comments", self.toggle_comment, checked=lambda: self.show_comment),
                 MenuItem("Toggle Toolbar", self.toggle_toolbar, checked=lambda: self.show_toolbar)
             ]),
             Menu("Themes", [

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from gobts.core.board import Board, Color, Point
 import gobts.core.goscorer as goscorer
+from gobts.core.rules import group_and_liberties
 
 TO_GOSCORER = {None: goscorer.EMPTY, Color.BLACK: goscorer.BLACK, Color.WHITE: goscorer.WHITE}
 FROM_GOSCORER = {goscorer.BLACK: Color.BLACK, goscorer.WHITE: Color.WHITE}
@@ -13,6 +14,7 @@ class Score:
     black: float
     white: float
     territory: dict[Point, Color]
+    dead: set[Point]
 
     @property
     def result(self) -> str: # sgf ex. B+3.5
@@ -45,5 +47,12 @@ def territory_score(board: Board, komi: float, dead: set[Point]|None = None) -> 
     return Score(
         black = points[Color.BLACK],
         white = points[Color.WHITE] + komi,
-        territory = territory
+        territory = territory,
+        dead = dead
     )
+
+def toggle_dead(board: Board, dead: set[Point], point: Point) -> set[Point]:
+    if board.is_empty(point):
+        return set(dead)
+    group, _ = group_and_liberties(board, point)
+    return dead - group if point in dead else dead | group

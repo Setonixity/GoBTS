@@ -120,3 +120,8 @@
 - (client) stone, star, marker, label, clear_masks all now depend on one sprites radius cache
 - (client) x-y based rendering positions to rect-based in BoardRenderer
 - (client) app.py helper methods
+
+## [0.1.0] - COMMENTS, FIXES, & EXECUTABLE - 14-11-2026
+### Added
+- (client) node comments and name box
+- (client) click to mark dead stones during scoring
