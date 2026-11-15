@@ -34,5 +34,5 @@ Put your themes in the user themes folder (Themes > Open Themes Folder), then Th
 | macOS | `~/Library/Application Support/gobts/themes` | `~/Library/Application Support/gobts/state.json` |
 | Linux | `~/.local/share/gobts/themes` | `~/.local/state/gobts/state.json` |
 
-## AI Usage Disclosure
+## AI and Sources Disclosure
 Google search summary LLM was used for solution queries, and the actual sources behind the the general implimentation is credited in [ARCHITECTURE.md](ARCHITECTURE.md).
