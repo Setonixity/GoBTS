@@ -102,6 +102,22 @@ class TreeTheme():
     highlight_corner: Optional[int] = 5
 
 @dataclass
+class CommentTheme:
+    background_rgb: Optional[RGB] = (45, 45, 45)
+    field_rgb: Optional[RGB] = (33, 33, 33)
+    text_rgb: Optional[RGB] = (255, 255, 255)
+    hint_rgb: Optional[RGB] = (110, 110, 110) 
+ 
+    font: FontPath = FONTS_DIR / "Ubuntu-Regular.ttf"
+    font_size: Optional[int] = 14
+    text_nudge: Optional[int] = -1
+ 
+    height: Optional[int] = 220
+    name_height: Optional[int] = 26
+    pad: Optional[int] = 6 
+    text_pad: Optional[int] = 8 
+
+@dataclass
 class ToolbarTheme:
     background_rgb: Optional[RGB] = (45, 45, 45)
     hover_rgb: Optional[RGB] = (60, 60, 60)
@@ -175,6 +191,7 @@ class Theme:
     board: BoardTheme = field(default_factory=BoardTheme)
     panel: PanelTheme = field(default_factory=PanelTheme)
     tree: TreeTheme = field(default_factory=TreeTheme)
+    comment: CommentTheme = field(default_factory=CommentTheme)
     toolbar: ToolbarTheme = field(default_factory=ToolbarTheme)
     actionbar: ActionBarTheme = field(default_factory=ActionBarTheme)
     menu: MenuTheme = field(default_factory=MenuTheme)

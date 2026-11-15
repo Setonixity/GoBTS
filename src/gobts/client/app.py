@@ -5,6 +5,8 @@ from gobts.client.actionbar.layout import ActionBarLayout
 from gobts.client.actionbar.renderer import ActionBarRenderer
 from gobts.client.board.layout import BoardLayout
 from gobts.client.board.renderer import BoardRenderer
+from gobts.client.comment.layout import CommentLayout
+from gobts.client.comment.renderer import CommentRenderer
 from gobts.client.panel.layout import PanelLayout
 from gobts.client.panel.renderer import PanelRenderer
 from gobts.client.sound import SoundPlayer
@@ -52,6 +54,7 @@ class ClientApp:
         self.theme = self.load_theme(self.theme_name)
         self.show_panel = True
         self.show_tree = True
+        self.show_comment = True
         self.show_toolbar = True
         self.tool: Tool|None = None
         self.new_game()
@@ -130,6 +133,8 @@ class ClientApp:
             self.panel_renderer.draw(screen)
             if self.show_tree:
                 self.tree_renderer.draw(screen, self.node)
+            if self.show_comment:
+                self.comment_renderer.draw(screen)
             if self.show_toolbar:
                 self.toolbar_renderer.draw(screen, self.tool)
             self.actionbar_renderer.draw(screen, self.score.result if self.score != None else None)
@@ -146,7 +151,7 @@ class ClientApp:
 
     def refit_layouts(self, window_size: tuple[int, int]):
         self.layout_size = window_size
-        self.board_renderer.layout, self.panel_renderer.layout, self.tree_renderer.layout, self.toolbar_renderer.layout, self.actionbar_renderer.layout = self.fit_layouts(self.layout_size)
+        self.board_renderer.layout, self.panel_renderer.layout, self.tree_renderer.layout, self.comment_renderer.layout, self.toolbar_renderer.layout, self.actionbar_renderer.layout = self.fit_layouts(self.layout_size)
 
     def on_play(self, point: Point|None):
         if point == None or not rules.is_legal(self.board, point, self.color_to_play):
@@ -289,11 +294,12 @@ class ClientApp:
         bar_height = self.menubar.layout.height
         panel_width = self.theme.panel.width if self.show_panel else 0
         board_layout = BoardLayout.fit(self.size, width - panel_width, height - bar_height, self.theme.board, top=bar_height)
-        panel_layout = PanelLayout.fit(pygame.Rect(width - panel_width, bar_height, panel_width, height - bar_height), self.show_tree, self.show_toolbar, self.theme.toolbar.height, self.theme.actionbar.height)
+        panel_layout = PanelLayout.fit(pygame.Rect(width - panel_width, bar_height, panel_width, height - bar_height), self.show_tree, self.show_comment, self.show_toolbar, self.theme.comment.height, self.theme.toolbar.height, self.theme.actionbar.height)
         tree_layout = TreeLayout.fit(self.root, self.node, panel_layout.tree_rect, self.theme.tree) 
+        comment_layout = CommentLayout.fit(panel_layout.comment_rect, converter.node_name(self.node), converter.comment(self.node), self.comment_font, self.theme.comment)
         toolbar_layout = ToolbarLayout.fit(panel_layout.toolbar_rect, self.theme.toolbar)
         actionbar_layout = ActionBarLayout.fit(panel_layout.actionbar_rect, self.theme.actionbar)
-        return board_layout, panel_layout, tree_layout, toolbar_layout, actionbar_layout
+        return board_layout, panel_layout, tree_layout, comment_layout, toolbar_layout, actionbar_layout
 
     def load_theme(self, name: str|None) -> Theme:
         return Theme() if name == None else Theme.from_dir(name)
@@ -344,10 +350,12 @@ class ClientApp:
     def build_ui(self):
         theme = self.theme
         self.build_menubar()
-        board_layout, panel_layout, tree_layout, toolbar_layout, actionbar_layout = self.fit_layouts(self.window.get_surface().get_size())
+        self.comment_font = pygame.font.Font(theme.comment.font, theme.comment.font_size)
+        board_layout, panel_layout, tree_layout, comment_layout, toolbar_layout, actionbar_layout = self.fit_layouts(self.window.get_surface().get_size())
         self.board_renderer = BoardRenderer(self.board, board_layout, theme.board)
         self.panel_renderer = PanelRenderer(panel_layout, theme.panel)
         self.tree_renderer = TreeRenderer(tree_layout, theme.tree)
+        self.comment_renderer = CommentRenderer(comment_layout, self.comment_font, theme.comment)
         self.toolbar_renderer = ToolbarRenderer(toolbar_layout, theme.toolbar)
         self.actionbar_renderer = ActionBarRenderer(actionbar_layout, theme.actionbar)
         self.sounds = SoundPlayer(theme.sound)

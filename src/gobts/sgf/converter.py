@@ -9,6 +9,8 @@ LABEL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 SETUP = {"AB": Color.BLACK, "AW": Color.WHITE, "AE": None}
 MOVES = {"B": Color.BLACK, "W": Color.WHITE}
 LABEL = "LB"
+NAME = "N"
+COMMENT = "C"
 
 def board_size(root: SGFNode) -> int:
     value = root.get("SZ")[0] if root.get("SZ") else str(19)
@@ -22,6 +24,13 @@ def komi(root: SGFNode) -> float:
         return float(value)
     except ValueError:
         return 6.5
+
+def node_name(node: SGFNode) -> str:
+    name = " ".join(node.get(NAME))
+    return " ".join(name.split()) 
+ 
+def comment(node: SGFNode) -> str:
+    return "\n".join(node.get(COMMENT))
 
 def apply_node(board: Board, node:SGFNode) -> None:
     if any(id in node for id in SETUP):

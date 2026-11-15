@@ -7,17 +7,22 @@ import pygame
 class PanelLayout:
     rect: pygame.Rect
     tree_rect: pygame.Rect
+    comment_rect: pygame.Rect
     toolbar_rect: pygame.Rect
     actionbar_rect: pygame.Rect
 
+
     @classmethod
-    def fit(cls, rect: pygame.Rect, show_tree: bool, show_toolbar: bool, toolbar_height: int, actionbar_height: int) -> PanelLayout:
+    def fit(cls, rect: pygame.Rect, show_tree: bool, show_comment: bool, show_toolbar: bool, comment_height: int, toolbar_height: int, actionbar_height: int) -> PanelLayout:
         actionbar_height = min(actionbar_height, rect.height)
         toolbar_height = min(toolbar_height, rect.height - actionbar_height) if show_toolbar else 0
-        tree_height = rect.height - toolbar_height -actionbar_height if show_tree else 0
+        rest = rect.height - toolbar_height - actionbar_height
+        comment_height = (min(comment_height, rest) if show_tree else rest) if show_comment else 0
+        tree_height = rest - comment_height if show_tree else 0
         return cls(
             rect = rect,
             tree_rect = pygame.Rect(rect.x, rect.y, rect.width, tree_height),
+            comment_rect = pygame.Rect(rect.x, rect.bottom - actionbar_height - toolbar_height - comment_height, rect.width, comment_height),
             toolbar_rect = pygame.Rect(rect.x, rect.bottom - actionbar_height - toolbar_height, rect.width, toolbar_height),
             actionbar_rect = pygame.Rect(rect.x, rect.bottom - actionbar_height, rect.width, actionbar_height)
         )

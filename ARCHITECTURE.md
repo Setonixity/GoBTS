@@ -8,11 +8,18 @@ GOBTS/
 ├── CHANGELOG.md
 ├── ARCHITECTURE.md
 ├── data/gobts/
+│   └── fonts/
 │   └── images/
 │   └── sgf/
+│   └── sounds/
+│   └── themes/
 └── src/gobts/
     └── client/
+    │   └── actionbar/
     │   └── board/
+    │   └── comment/
+    │   └── panel/
+    │   └── toolbar/
     │   └── tree/
     │   └── ui/
     └── core/
