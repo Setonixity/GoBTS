@@ -129,5 +129,8 @@
 - (client) state storing current theme and game
 - (client) pyinstall executable builder on spec
 
+### Changed
+- (client) starting window size now dependent on screen resolution
+
 ### Fixed
 - (client) open_game never set self.path

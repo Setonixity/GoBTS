@@ -13,7 +13,7 @@ from gobts.client.panel.renderer import PanelRenderer
 from gobts.client.paths import USER_THEMES_DIR
 from gobts.client.sound import SoundPlayer
 from gobts.client.state import State
-from gobts.client.theme import Theme
+from gobts.client.theme import MenuTheme, PanelTheme, Theme
 from gobts.client.toolbar.layout import ToolbarLayout
 from gobts.client.toolbar.renderer import ToolbarRenderer
 from gobts.client.toolbar.tool import Tool
@@ -37,15 +37,29 @@ from pygame._sdl2.video import Window
 
 WINDOW_TITLE = "GOBTS - Go: Back To Sleep"
 PANEL_WIDTH = 240
+IDEAL_BOARD_SIZE = 800
+SCREEN_FILL = 0.9
 WINDOW_SIZE = (800 + PANEL_WIDTH, 822)
 FPS = 60
 
 REDRAW_EVENTS = {pygame.VIDEORESIZE, pygame.WINDOWSIZECHANGED, pygame.WINDOWEXPOSED, pygame.MOUSEMOTION}
 
+def initial_window_size() -> tuple[int, int]:
+    panel_width, bar_height = PanelTheme.width, MenuTheme.bar_height
+    width, height = IDEAL_BOARD_SIZE + panel_width, IDEAL_BOARD_SIZE + bar_height
+    desktops = pygame.display.get_desktop_sizes()
+    if not desktops:
+        return width, height
+    max_width, max_height = int(desktops[0][0]*SCREEN_FILL), int(desktops[0][1]*SCREEN_FILL)
+    if width <= max_width and height <= max_height:
+        return width, height
+    board = min(max_width - panel_width, max_height - bar_height)
+    return board + panel_width, board + bar_height
+
 class ClientApp:
     def __init__(self, size: int = 19):
         pygame.init()
-        self.window = Window(WINDOW_TITLE, WINDOW_SIZE, resizable=True)
+        self.window = Window(WINDOW_TITLE, initial_window_size(), resizable=True)
         pygame.key.set_repeat(300, 50)
         self.maximized = False
         self.layout_size = None
