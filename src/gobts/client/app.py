@@ -1,5 +1,7 @@
 from __future__ import annotations
+import ctypes
 from pathlib import Path
+import sys
 
 from gobts.client.actionbar.action import Action
 from gobts.client.actionbar.layout import ActionBarLayout
@@ -58,6 +60,12 @@ def initial_window_size() -> tuple[int, int]:
 
 class ClientApp:
     def __init__(self, size: int = 19):
+        if sys.platform == 'win32':
+            try:
+                ctypes.windll.shcore.SetProcessDpiAwareness(1)
+            except Exception:
+                ctypes.windll.user32.SetProcessDPIAware()
+                
         pygame.init()
         self.window = Window(WINDOW_TITLE, initial_window_size(), resizable=True)
         pygame.key.set_repeat(300, 50)

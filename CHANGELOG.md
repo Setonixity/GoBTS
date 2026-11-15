@@ -134,3 +134,4 @@
 
 ### Fixed
 - (client) open_game never set self.path
+- (client) windows using its own dpi-scaling causing blurry rendering
