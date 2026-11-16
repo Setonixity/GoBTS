@@ -121,7 +121,7 @@
 - (client) x-y based rendering positions to rect-based in BoardRenderer
 - (client) app.py helper methods
 
-## [0.1.0] - COMMENTS, FIXES, & EXECUTABLE - 14-11-2026
+## [0.1.0] - COMMENTS, FIXES, & EXECUTABLE - 15-11-2026
 ### Added
 - (client) node comments and name box
 - (client) click to mark dead stones during scoring
@@ -135,3 +135,7 @@
 ### Fixed
 - (client) open_game never set self.path
 - (client) windows using its own dpi-scaling causing blurry rendering
+
+## [0.1.01] - HOTFIX # 1 - 16-11-2026
+### Fixed
+- (client) mac tkinter dialog pygame crash

@@ -51,3 +51,4 @@ For SGF parsing, the code follows this [naming convention](https://homepages.cwi
 - per-os user folders: [platformdirs](https://platformdirs.readthedocs.io/en/latest/explanation.html)
 - bundled data path when frozen: [pyinstaller](https://pyinstaller.org/en/stable/runtime-information.html)
 - LD_LIBRARY_PATH for subprocesses when frozen: [pyinstaller](https://pyinstaller.org/en/stable/common-issues-and-pitfalls.html)
+- tkinter and pygame crash on mac: [mail.python](https://mail.python.org/pipermail/python-bugs-list/2022-February/505970.html)
