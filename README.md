@@ -23,7 +23,7 @@ pip install -e .[build]
 pyinstaller gobts.spec --noconfirm
 ```
 
-Output is `dist/gobts/` on Windows and Linux, `dist/GOBTS.app` on macOS.
+Output is `dist/gobts/` on Windows and Linux, `dist/GOBTS.app.zip` on macOS.
 
 ## Custom themes
 Put your themes in the user themes folder (Themes > Open Themes Folder), then Themes > Reload Themes Folder. 
